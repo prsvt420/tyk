@@ -25,7 +25,17 @@ multiline-quotes = "double"
 docstring-quotes = "double"
 select = ["E", "W", "F", "C", "B", "D", "N", "Q", "ERA", "S"]
 ignore = ["W503", "D100", "D104"]
-per-file-ignores = ["tests/*: S101"]
+per-file-ignores = [
+    "tests/*: S101",
+    "scripts/run_mypy.py: S404, S603, S607"
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+ignore_missing_imports = true
 
 [dependency-groups]
 dev = [
@@ -38,5 +48,6 @@ dev = [
     "flake8-pyproject>=1.2.4",
     "flake8-quotes>=3.4.0",
     "isort>=8.0.1",
+    "mypy>=2.1.0",
     "pep8-naming>=0.15.1",
 ]
