@@ -5,6 +5,10 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
 
+[tool.black]
+line-length = 79
+target-version = ["py313"]
+
 [tool.isort]
 profile = "black"
 line_length = 79
@@ -25,6 +29,7 @@ per-file-ignores = ["tests/*: S101"]
 
 [dependency-groups]
 dev = [
+    "black>=26.5.1",
     "flake8>=7.3.0",
     "flake8-bandit>=4.1.1",
     "flake8-bugbear>=25.11.29",
