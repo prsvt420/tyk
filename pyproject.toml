@@ -5,6 +5,12 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
 
+[tool.isort]
+profile = "black"
+line_length = 79
+skip = [".venv", "alembic/versions"]
+known_first_party = ["src"]
+
 [tool.flake8]
 max-line-length = 79
 max-complexity = 10
@@ -26,5 +32,6 @@ dev = [
     "flake8-eradicate>=1.5.0",
     "flake8-pyproject>=1.2.4",
     "flake8-quotes>=3.4.0",
+    "isort>=8.0.1",
     "pep8-naming>=0.15.1",
 ]

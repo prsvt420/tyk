@@ -133,6 +133,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/dd/57/a173e3eb86072b7ee77650aca496b15d6886367d257f58ea9de5276e330a/flake8-quotes-3.4.0.tar.gz", hash = "sha256:aad8492fb710a2d3eabe68c5f86a1428de650c8484127e14c43d0504ba30276c", size = 14107, upload-time = "2024-02-10T21:58:22.357Z" }
 
 [[package]]
+name = "isort"
+version = "8.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/7c/ec4ab396d31b3b395e2e999c8f46dec78c5e29209fac49d1f4dace04041d/isort-8.0.1.tar.gz", hash = "sha256:171ac4ff559cdc060bcfff550bc8404a486fee0caab245679c2abe7cb253c78d", size = 769592, upload-time = "2026-02-28T10:08:20.685Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/95/c7c34aa53c16353c56d0b802fba48d5f5caa2cdee7958acbcb795c830416/isort-8.0.1-py3-none-any.whl", hash = "sha256:28b89bc70f751b559aeca209e6120393d43fbe2490de0559662be7a9787e3d75", size = 89733, upload-time = "2026-02-28T10:08:19.466Z" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -303,6 +312,7 @@ dev = [
     { name = "flake8-eradicate" },
     { name = "flake8-pyproject" },
     { name = "flake8-quotes" },
+    { name = "isort" },
     { name = "pep8-naming" },
 ]
 
@@ -317,5 +327,6 @@ dev = [
     { name = "flake8-eradicate", specifier = ">=1.5.0" },
     { name = "flake8-pyproject", specifier = ">=1.2.4" },
     { name = "flake8-quotes", specifier = ">=3.4.0" },
+    { name = "isort", specifier = ">=8.0.1" },
     { name = "pep8-naming", specifier = ">=0.15.1" },
 ]
