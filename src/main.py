@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 
+from src.config.settings import settings
+
 
 def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
     app: FastAPI = FastAPI(
-        title="Тык",
-        version="0.1.0",
-        description="Сокращатель URL-адресов",
+        debug=settings.app_debug,
+        title=settings.app_title,
+        version=settings.app_version,
+        description=settings.app_description,
     )
     return app
 
