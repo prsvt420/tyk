@@ -3,7 +3,9 @@ name = "tyk"
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi>=0.136.3",
+]
 
 [tool.black]
 line-length = 79
