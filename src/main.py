@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.config.settings import settings
+from src.presentation.api.v1.router import router as v1_router
 
 
 def create_app() -> FastAPI:
@@ -11,6 +12,9 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         description=settings.app_description,
     )
+
+    app.include_router(router=v1_router, prefix="/api/v1")
+
     return app
 
 
