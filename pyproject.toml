@@ -28,7 +28,7 @@ inline-quotes = "double"
 multiline-quotes = "double"
 docstring-quotes = "double"
 select = ["E", "W", "F", "C", "B", "D", "N", "Q", "ERA", "S"]
-ignore = ["W503", "D100", "D104"]
+ignore = ["W503", "D100", "D104", "D107"]
 per-file-ignores = [
     "tests/*: S101",
     "scripts/run_mypy.py: S404, S603, S607"
