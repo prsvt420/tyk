@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 from src.domain.constants import (
+    SHORT_CODE_ALLOWED_CHARS,
     SHORT_CODE_MAX_LENGTH,
     SHORT_CODE_MIN_LENGTH,
-    SHORT_CODE_PATTERN,
 )
 from src.domain.exceptions import InvalidShortCodeError
 
@@ -22,7 +22,7 @@ class ShortCode:
         if len(self.value) > SHORT_CODE_MAX_LENGTH:
             raise InvalidShortCodeError("Short code is too long.")
 
-        if SHORT_CODE_PATTERN.fullmatch(string=self.value) is None:
+        if any(char not in SHORT_CODE_ALLOWED_CHARS for char in self.value):
             raise InvalidShortCodeError(
-                "Short code must contain only pattern characters."
+                "Short code must contain only allowed characters."
             )
