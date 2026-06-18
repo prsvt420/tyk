@@ -3,6 +3,9 @@ from src.application.interfaces.short_link_repository import (
     ShortLinkRepository,
 )
 from src.application.use_cases.create_short_link import CreateShortLinkUseCase
+from src.application.use_cases.get_short_link_by_short_code import (
+    GetShortLinkByShortCodeUseCase,
+)
 from src.infrastructure.generators.random_short_code_generator import (
     RandomShortCodeGenerator,
 )
@@ -29,4 +32,13 @@ def provide_create_short_link_use_case() -> CreateShortLinkUseCase:
     return CreateShortLinkUseCase(
         short_link_repository=provide_short_link_repository(),
         short_code_generator=provide_short_code_generator(),
+    )
+
+
+def provide_get_short_link_by_short_code_use_case() -> (
+    GetShortLinkByShortCodeUseCase
+):
+    """Provide get short link by short code use case."""
+    return GetShortLinkByShortCodeUseCase(
+        short_link_repository=provide_short_link_repository(),
     )
