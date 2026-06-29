@@ -34,7 +34,7 @@ class ShortLink:
 
         if (
             self.expires_at.tzinfo is None
-            or self.created_at.utcoffset() is None
+            or self.expires_at.utcoffset() is None
         ):
             raise InvalidShortLinkError("expires_at must be timezone-aware.")
 
