@@ -9,7 +9,7 @@ from src.application.interfaces.short_link_repository import (
 )
 from src.application.mappers.short_link import ShortLinkMapper
 from src.domain.entities.short_link import ShortLink
-from src.domain.value_objects.original_url import OriginalUrl
+from src.domain.value_objects.original_url import OriginalURL
 from src.domain.value_objects.short_code import ShortCode
 
 
@@ -30,7 +30,7 @@ class CreateShortLinkUseCase:
         self, create_short_link_dto: CreateShortLinkDTO
     ) -> ShortLinkDTO:
         """Create short link."""
-        original_url: OriginalUrl = OriginalUrl(
+        original_url: OriginalURL = OriginalURL(
             value=create_short_link_dto.original_url
         )
         short_code: ShortCode = await self._generate_unique_short_code()

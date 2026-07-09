@@ -5,7 +5,7 @@ from src.domain.exceptions import InvalidOriginalUrlError
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class OriginalUrl:
+class OriginalURL:
     """Original URL value object."""
 
     value: str

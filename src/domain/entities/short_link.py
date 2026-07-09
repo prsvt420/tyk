@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from src.domain.exceptions import InvalidShortLinkError
-from src.domain.value_objects.original_url import OriginalUrl
+from src.domain.value_objects.original_url import OriginalURL
 from src.domain.value_objects.short_code import ShortCode
 
 
@@ -12,7 +12,7 @@ class ShortLink:
     """Short link entity."""
 
     id: UUID
-    original_url: OriginalUrl
+    original_url: OriginalURL
     short_code: ShortCode
     created_at: datetime = field(
         default_factory=lambda: datetime.now(tz=timezone.utc)
