@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.presentation.api.v1.controllers.short_link import (
+from src.presentation.api.v1.controllers.short_link_controller import (
     router as short_links_router,
 )
 

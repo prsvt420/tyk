@@ -1,14 +1,14 @@
-from src.application.dtos.short_link import ShortLinkDTO
+from src.application.dtos.short_link_dto import ShortLinkDTO
 from src.application.exceptions import (
     ShortLinkExpiredError,
     ShortLinkNotFoundError,
 )
-from src.application.interfaces.short_link_repository import (
+from src.application.interfaces.short_link_repository_interface import (
     ShortLinkRepository,
 )
-from src.application.mappers.short_link import ShortLinkMapper
-from src.domain.entities.short_link import ShortLink
-from src.domain.value_objects.short_code import ShortCode
+from src.application.mappers.short_link_mapper import ShortLinkMapper
+from src.domain.entities.short_link_entity import ShortLink
+from src.domain.value_objects.short_code_value_object import ShortCode
 
 
 class GetShortLinkByShortCodeUseCase:

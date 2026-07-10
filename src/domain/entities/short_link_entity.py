@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from src.domain.exceptions import InvalidShortLinkError
-from src.domain.value_objects.original_url import OriginalURL
-from src.domain.value_objects.short_code import ShortCode
+from src.domain.value_objects.original_url_value_object import OriginalURL
+from src.domain.value_objects.short_code_value_object import ShortCode
 
 
 @dataclass(slots=True, kw_only=True)

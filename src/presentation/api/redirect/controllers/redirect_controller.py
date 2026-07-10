@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 
-from src.application.dtos.short_link import ShortLinkDTO
+from src.application.dtos.short_link_dto import ShortLinkDTO
 from src.application.exceptions import (
     ShortLinkExpiredError,
     ShortLinkNotFoundError,
 )
-from src.application.use_cases.get_short_link_by_short_code import (
+from src.application.use_cases.get_short_link_by_short_code_use_case import (
     GetShortLinkByShortCodeUseCase,
 )
 from src.domain.exceptions import InvalidShortCodeError

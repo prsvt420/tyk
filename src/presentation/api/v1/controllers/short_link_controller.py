@@ -2,12 +2,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
-from src.application.dtos.short_link import CreateShortLinkDTO, ShortLinkDTO
-from src.application.use_cases.create_short_link import CreateShortLinkUseCase
+from src.application.dtos.short_link_dto import (
+    CreateShortLinkDTO,
+    ShortLinkDTO,
+)
+from src.application.use_cases.create_short_link_use_case import (
+    CreateShortLinkUseCase,
+)
 from src.presentation.api.dependencies import (
     provide_create_short_link_use_case,
 )
-from src.presentation.api.v1.schemas.short_link import (
+from src.presentation.api.v1.schemas.short_link_schema import (
     CreateShortLinkRequest,
     ShortLinkResponse,
 )

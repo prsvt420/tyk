@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.presentation.api.redirect.controllers.redirect import (
+from src.presentation.api.redirect.controllers.redirect_controller import (
     router as redirect_router,
 )
 

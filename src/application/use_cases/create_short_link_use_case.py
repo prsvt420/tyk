@@ -1,16 +1,21 @@
 from uuid import uuid4
 
 from src.application.constants import MAX_SHORT_CODE_GENERATION_ATTEMPTS
-from src.application.dtos.short_link import CreateShortLinkDTO, ShortLinkDTO
+from src.application.dtos.short_link_dto import (
+    CreateShortLinkDTO,
+    ShortLinkDTO,
+)
 from src.application.exceptions import ShortCodeGenerationError
-from src.application.interfaces.short_code_generator import ShortCodeGenerator
-from src.application.interfaces.short_link_repository import (
+from src.application.interfaces.short_code_generator_interface import (
+    ShortCodeGenerator,
+)
+from src.application.interfaces.short_link_repository_interface import (
     ShortLinkRepository,
 )
-from src.application.mappers.short_link import ShortLinkMapper
-from src.domain.entities.short_link import ShortLink
-from src.domain.value_objects.original_url import OriginalURL
-from src.domain.value_objects.short_code import ShortCode
+from src.application.mappers.short_link_mapper import ShortLinkMapper
+from src.domain.entities.short_link_entity import ShortLink
+from src.domain.value_objects.original_url_value_object import OriginalURL
+from src.domain.value_objects.short_code_value_object import ShortCode
 
 
 class CreateShortLinkUseCase:

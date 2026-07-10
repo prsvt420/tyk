@@ -1,5 +1,5 @@
-from src.application.dtos.short_link import ShortLinkDTO
-from src.domain.entities.short_link import ShortLink
+from src.application.dtos.short_link_dto import ShortLinkDTO
+from src.domain.entities.short_link_entity import ShortLink
 
 
 class ShortLinkMapper:

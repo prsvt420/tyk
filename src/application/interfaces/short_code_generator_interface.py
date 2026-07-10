@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.value_objects.short_code import ShortCode
+from src.domain.value_objects.short_code_value_object import ShortCode
 
 
 class ShortCodeGenerator(ABC):
