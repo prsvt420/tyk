@@ -3,7 +3,7 @@ from typing import ClassVar, Literal
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
+class ApplicationSettings(BaseSettings):
     """Application settings."""
 
     app_debug: bool = False
@@ -22,4 +22,4 @@ class Settings(BaseSettings):
     )
 
 
-settings: Settings = Settings()
+application_settings: ApplicationSettings = ApplicationSettings()

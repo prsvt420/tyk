@@ -5,8 +5,8 @@ from time import monotonic
 
 from fastapi import FastAPI
 
+from src.config.application_settings import application_settings
 from src.config.logging import configure_logging
-from src.config.settings import settings
 from src.domain.exceptions import DomainError
 from src.presentation.api.exception_handlers import handle_domain_error
 from src.presentation.api.redirect.router import router as redirect_router
@@ -44,13 +44,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
-    configure_logging(log_level=settings.log_level)
+    configure_logging(log_level=application_settings.log_level)
 
     app: FastAPI = FastAPI(
-        debug=settings.app_debug,
-        title=settings.app_title,
-        version=settings.app_version,
-        description=settings.app_description,
+        debug=application_settings.app_debug,
+        title=application_settings.app_title,
+        version=application_settings.app_version,
+        description=application_settings.app_description,
         lifespan=lifespan,
     )
 
