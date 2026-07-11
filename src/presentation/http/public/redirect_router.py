@@ -10,14 +10,14 @@ from src.application.exceptions import (
 )
 from src.application.use_cases import GetShortLinkByShortCodeUseCase
 from src.domain.exceptions import InvalidShortCodeError
-from src.presentation.api.dependencies import (
+from src.presentation.http.dependencies import (
     provide_get_short_link_by_short_code_use_case,
 )
 
-router: APIRouter = APIRouter()
+redirect_router: APIRouter = APIRouter(tags=["redirect"])
 
 
-@router.get(
+@redirect_router.get(
     path="/r/{short_code}",
     response_class=RedirectResponse,
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,

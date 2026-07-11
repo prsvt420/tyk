@@ -8,9 +8,9 @@ from fastapi import FastAPI
 from src.config.application_settings import application_settings
 from src.config.logging import configure_logging
 from src.domain.exceptions import DomainError
-from src.presentation.api.exception_handlers import handle_domain_error
-from src.presentation.api.redirect.router import router as redirect_router
-from src.presentation.api.v1.router import router as v1_router
+from src.presentation.http.api.v1.router import api_v1_router
+from src.presentation.http.exception_handlers import handle_domain_error
+from src.presentation.http.public import redirect_router
 
 logger: Logger = getLogger(name=__name__)
 
@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(router=redirect_router)
-    app.include_router(router=v1_router, prefix="/api/v1")
+    app.include_router(router=api_v1_router, prefix="/api/v1")
 
     app.add_exception_handler(
         exc_class_or_status_code=DomainError, handler=handle_domain_error

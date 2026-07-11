@@ -7,18 +7,18 @@ from src.application.dtos import (
     ShortLinkDTO,
 )
 from src.application.use_cases import CreateShortLinkUseCase
-from src.presentation.api.dependencies import (
-    provide_create_short_link_use_case,
-)
-from src.presentation.api.v1.schemas import (
+from src.presentation.http.api.v1.schemas import (
     CreateShortLinkRequestSchema,
     ShortLinkResponseSchema,
 )
+from src.presentation.http.dependencies import (
+    provide_create_short_link_use_case,
+)
 
-router: APIRouter = APIRouter()
+short_link_router: APIRouter = APIRouter(tags=["short-links"])
 
 
-@router.post(
+@short_link_router.post(
     path="/short-links",
     response_model=ShortLinkResponseSchema,
     status_code=status.HTTP_201_CREATED,

@@ -1,9 +1,9 @@
 from typing import List
 
-from src.presentation.api.v1.schemas.create_short_link_request_schema import (
+from src.presentation.http.api.v1.schemas.create_short_link_request_schema import (  # noqa: E501
     CreateShortLinkRequestSchema,
 )
-from src.presentation.api.v1.schemas.short_link_response_schema import (
+from src.presentation.http.api.v1.schemas.short_link_response_schema import (
     ShortLinkResponseSchema,
 )
 
