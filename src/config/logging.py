@@ -1,7 +1,8 @@
+from collections.abc import Callable
 from logging import config
 from pathlib import Path
 from time import gmtime, struct_time
-from typing import Any, Callable, Dict, SupportsIndex
+from typing import Any, SupportsIndex
 
 from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
@@ -18,7 +19,7 @@ def configure_logging(log_level: str = "INFO") -> None:
     log_directory: Path = Path("logs")
     log_directory.mkdir(parents=True, exist_ok=True)
 
-    logging_config: Dict[str, Any] = {
+    logging_config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {

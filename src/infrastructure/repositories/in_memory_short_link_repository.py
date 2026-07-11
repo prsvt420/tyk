@@ -1,5 +1,3 @@
-from typing import Dict
-
 from src.application.interfaces import ShortLinkRepositoryInterface
 from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
@@ -9,7 +7,7 @@ class InMemoryShortLinkRepository(ShortLinkRepositoryInterface):
     """In-memory short link repository."""
 
     def __init__(self) -> None:
-        self._short_links: Dict[ShortCode, ShortLink] = {}
+        self._short_links: dict[ShortCode, ShortLink] = {}
 
     async def save(self, short_link: ShortLink) -> None:
         """Save short link."""
