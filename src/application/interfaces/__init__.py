@@ -1,10 +1,13 @@
 from typing import List
 
 from src.application.interfaces.short_code_generator_interface import (
-    ShortCodeGenerator,
+    ShortCodeGeneratorInterface,
 )
 from src.application.interfaces.short_link_repository_interface import (
-    ShortLinkRepository,
+    ShortLinkRepositoryInterface,
 )
 
-__all__: List[str] = ["ShortCodeGenerator", "ShortLinkRepository"]
+__all__: List[str] = [
+    "ShortCodeGeneratorInterface",
+    "ShortLinkRepositoryInterface",
+]

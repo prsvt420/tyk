@@ -7,8 +7,8 @@ from src.application.dtos import (
 )
 from src.application.exceptions import ShortCodeGenerationError
 from src.application.interfaces import (
-    ShortCodeGenerator,
-    ShortLinkRepository,
+    ShortCodeGeneratorInterface,
+    ShortLinkRepositoryInterface,
 )
 from src.application.mappers import ShortLinkMapper
 from src.domain.entities import ShortLink
@@ -20,13 +20,15 @@ class CreateShortLinkUseCase:
 
     def __init__(
         self,
-        short_link_repository: ShortLinkRepository,
-        short_code_generator: ShortCodeGenerator,
+        short_link_repository: ShortLinkRepositoryInterface,
+        short_code_generator: ShortCodeGeneratorInterface,
     ) -> None:
-        self._short_link_repository: ShortLinkRepository = (
+        self._short_link_repository: ShortLinkRepositoryInterface = (
             short_link_repository
         )
-        self._short_code_generator: ShortCodeGenerator = short_code_generator
+        self._short_code_generator: ShortCodeGeneratorInterface = (
+            short_code_generator
+        )
 
     async def execute(
         self, create_short_link_dto: CreateShortLinkDTO

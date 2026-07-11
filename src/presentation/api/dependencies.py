@@ -1,6 +1,6 @@
 from src.application.interfaces import (
-    ShortCodeGenerator,
-    ShortLinkRepository,
+    ShortCodeGeneratorInterface,
+    ShortLinkRepositoryInterface,
 )
 from src.application.use_cases import (
     CreateShortLinkUseCase,
@@ -9,16 +9,18 @@ from src.application.use_cases import (
 from src.infrastructure.generators import RandomShortCodeGenerator
 from src.infrastructure.repositories import InMemoryShortLinkRepository
 
-_short_link_repository: ShortLinkRepository = InMemoryShortLinkRepository()
-_short_code_generator: ShortCodeGenerator = RandomShortCodeGenerator()
+_short_link_repository: ShortLinkRepositoryInterface = (
+    InMemoryShortLinkRepository()
+)
+_short_code_generator: ShortCodeGeneratorInterface = RandomShortCodeGenerator()
 
 
-def provide_short_link_repository() -> ShortLinkRepository:
+def provide_short_link_repository() -> ShortLinkRepositoryInterface:
     """Provide short link repository."""
     return _short_link_repository
 
 
-def provide_short_code_generator() -> ShortCodeGenerator:
+def provide_short_code_generator() -> ShortCodeGeneratorInterface:
     """Provide short code generator."""
     return _short_code_generator
 

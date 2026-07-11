@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.domain.value_objects import ShortCode
 
 
-class ShortCodeGenerator(ABC):
+class ShortCodeGeneratorInterface(ABC):
     """Short code generator interface."""
 
     @abstractmethod

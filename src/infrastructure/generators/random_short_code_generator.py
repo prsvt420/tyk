@@ -1,6 +1,6 @@
 import secrets
 
-from src.application.interfaces import ShortCodeGenerator
+from src.application.interfaces import ShortCodeGeneratorInterface
 from src.domain.constants import (
     SHORT_CODE_ALPHABET,
     SHORT_CODE_MAX_LENGTH,
@@ -12,7 +12,7 @@ from src.infrastructure.exceptions import ShortCodeGeneratorError
 DEFAULT_SHORT_CODE_LENGTH: int = 7
 
 
-class RandomShortCodeGenerator(ShortCodeGenerator):
+class RandomShortCodeGenerator(ShortCodeGeneratorInterface):
     """Random short code generator."""
 
     def __init__(

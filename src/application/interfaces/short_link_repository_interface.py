@@ -4,7 +4,7 @@ from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
 
 
-class ShortLinkRepository(ABC):
+class ShortLinkRepositoryInterface(ABC):
     """Short link repository interface."""
 
     @abstractmethod

@@ -1,11 +1,11 @@
 from typing import Dict
 
-from src.application.interfaces import ShortLinkRepository
+from src.application.interfaces import ShortLinkRepositoryInterface
 from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
 
 
-class InMemoryShortLinkRepository(ShortLinkRepository):
+class InMemoryShortLinkRepository(ShortLinkRepositoryInterface):
     """In-memory short link repository."""
 
     def __init__(self) -> None:

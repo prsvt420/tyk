@@ -3,7 +3,7 @@ from src.application.exceptions import (
     ShortLinkExpiredError,
     ShortLinkNotFoundError,
 )
-from src.application.interfaces import ShortLinkRepository
+from src.application.interfaces import ShortLinkRepositoryInterface
 from src.application.mappers import ShortLinkMapper
 from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
@@ -14,9 +14,9 @@ class GetShortLinkByShortCodeUseCase:
 
     def __init__(
         self,
-        short_link_repository: ShortLinkRepository,
+        short_link_repository: ShortLinkRepositoryInterface,
     ) -> None:
-        self._short_link_repository: ShortLinkRepository = (
+        self._short_link_repository: ShortLinkRepositoryInterface = (
             short_link_repository
         )
 
