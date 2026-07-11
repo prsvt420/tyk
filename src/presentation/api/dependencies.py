@@ -1,21 +1,13 @@
-from src.application.interfaces.short_code_generator_interface import (
+from src.application.interfaces import (
     ShortCodeGenerator,
-)
-from src.application.interfaces.short_link_repository_interface import (
     ShortLinkRepository,
 )
-from src.application.use_cases.create_short_link_use_case import (
+from src.application.use_cases import (
     CreateShortLinkUseCase,
-)
-from src.application.use_cases.get_short_link_by_short_code_use_case import (
     GetShortLinkByShortCodeUseCase,
 )
-from src.infrastructure.generators.random_short_code_generator import (
-    RandomShortCodeGenerator,
-)
-from src.infrastructure.repositories.in_memory_short_link_repository import (
-    InMemoryShortLinkRepository,
-)
+from src.infrastructure.generators import RandomShortCodeGenerator
+from src.infrastructure.repositories import InMemoryShortLinkRepository
 
 _short_link_repository: ShortLinkRepository = InMemoryShortLinkRepository()
 _short_code_generator: ShortCodeGenerator = RandomShortCodeGenerator()

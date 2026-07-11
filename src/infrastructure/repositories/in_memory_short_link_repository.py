@@ -1,10 +1,8 @@
 from typing import Dict
 
-from src.application.interfaces.short_link_repository_interface import (
-    ShortLinkRepository,
-)
-from src.domain.entities.short_link_entity import ShortLink
-from src.domain.value_objects.short_code_value_object import ShortCode
+from src.application.interfaces import ShortLinkRepository
+from src.domain.entities import ShortLink
+from src.domain.value_objects import ShortCode
 
 
 class InMemoryShortLinkRepository(ShortLinkRepository):

@@ -1,14 +1,12 @@
 import secrets
 
-from src.application.interfaces.short_code_generator_interface import (
-    ShortCodeGenerator,
-)
+from src.application.interfaces import ShortCodeGenerator
 from src.domain.constants import (
     SHORT_CODE_ALPHABET,
     SHORT_CODE_MAX_LENGTH,
     SHORT_CODE_MIN_LENGTH,
 )
-from src.domain.value_objects.short_code_value_object import ShortCode
+from src.domain.value_objects import ShortCode
 from src.infrastructure.exceptions import ShortCodeGeneratorError
 
 DEFAULT_SHORT_CODE_LENGTH: int = 7
