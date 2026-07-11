@@ -2,7 +2,7 @@ class DomainError(Exception):
     """Base domain error."""
 
 
-class InvalidOriginalUrlError(DomainError):
+class InvalidOriginalURLError(DomainError):
     """Raised when original URL is invalid."""
 
 

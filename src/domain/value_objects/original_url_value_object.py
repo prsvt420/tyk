@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from urllib.parse import ParseResult, urlparse
 
-from src.domain.exceptions import InvalidOriginalUrlError
+from src.domain.exceptions import InvalidOriginalURLError
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -15,7 +15,7 @@ class OriginalURL:
         parse_result: ParseResult = urlparse(url=self.value)
 
         if parse_result.scheme not in {"http", "https"}:
-            raise InvalidOriginalUrlError("URL scheme must be HTTP or HTTPS.")
+            raise InvalidOriginalURLError("URL scheme must be HTTP or HTTPS.")
 
         if not parse_result.netloc:
-            raise InvalidOriginalUrlError("URL must contain a host.")
+            raise InvalidOriginalURLError("URL must contain a host.")
