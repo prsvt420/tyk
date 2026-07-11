@@ -11,8 +11,8 @@ from src.presentation.api.dependencies import (
     provide_create_short_link_use_case,
 )
 from src.presentation.api.v1.schemas import (
-    CreateShortLinkRequest,
-    ShortLinkResponse,
+    CreateShortLinkRequestSchema,
+    ShortLinkResponseSchema,
 )
 
 router: APIRouter = APIRouter()
@@ -20,16 +20,16 @@ router: APIRouter = APIRouter()
 
 @router.post(
     path="/short-links",
-    response_model=ShortLinkResponse,
+    response_model=ShortLinkResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_short_link(
-    request: CreateShortLinkRequest,
+    request: CreateShortLinkRequestSchema,
     use_case: Annotated[
         CreateShortLinkUseCase,
         Depends(provide_create_short_link_use_case),
     ],
-) -> ShortLinkResponse:
+) -> ShortLinkResponseSchema:
     """Create short link."""
     short_link_dto: ShortLinkDTO = await use_case.execute(
         create_short_link_dto=CreateShortLinkDTO(
@@ -38,7 +38,7 @@ async def create_short_link(
         )
     )
 
-    return ShortLinkResponse(
+    return ShortLinkResponseSchema(
         id=short_link_dto.id,
         original_url=short_link_dto.original_url,
         short_code=short_link_dto.short_code,
