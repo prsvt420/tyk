@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from src.config.application_settings import application_settings
 from src.config.logging_config import configure_logging
 from src.domain.exceptions import DomainError
-from src.presentation.http.api.v1.router import api_v1_router
+from src.presentation.http.api.v1 import api_v1_router
 from src.presentation.http.exception_handlers import handle_domain_error
 from src.presentation.http.public import short_link_redirect_router
 
