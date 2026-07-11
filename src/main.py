@@ -10,7 +10,7 @@ from src.config.logging import configure_logging
 from src.domain.exceptions import DomainError
 from src.presentation.http.api.v1.router import api_v1_router
 from src.presentation.http.exception_handlers import handle_domain_error
-from src.presentation.http.public import redirect_router
+from src.presentation.http.public import short_link_redirect_router
 
 logger: Logger = getLogger(name=__name__)
 
@@ -54,7 +54,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    app.include_router(router=redirect_router)
+    app.include_router(router=short_link_redirect_router)
     app.include_router(router=api_v1_router, prefix="/api/v1")
 
     app.add_exception_handler(

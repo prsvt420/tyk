@@ -14,10 +14,12 @@ from src.presentation.http.dependencies import (
     provide_get_short_link_by_short_code_use_case,
 )
 
-redirect_router: APIRouter = APIRouter(tags=["redirect"])
+short_link_redirect_router: APIRouter = APIRouter(
+    tags=["short-link-redirects"]
+)
 
 
-@redirect_router.get(
+@short_link_redirect_router.get(
     path="/r/{short_code}",
     response_class=RedirectResponse,
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
