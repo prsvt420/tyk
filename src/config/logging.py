@@ -7,7 +7,7 @@ from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
 
 
-class UTCJsonFormatter(JsonFormatter):
+class UTCJSONFormatter(JsonFormatter):
     """Format structured logs with UTC timestamps."""
 
     converter: Callable[[float | SupportsIndex | None], struct_time] = gmtime
@@ -23,7 +23,7 @@ def configure_logging(log_level: str = "INFO") -> None:
         "disable_existing_loggers": False,
         "formatters": {
             "default": {
-                "()": UTCJsonFormatter,
+                "()": UTCJSONFormatter,
                 "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
                 "datefmt": "%Y-%m-%dT%H:%M:%SZ",
                 "rename_fields": {
