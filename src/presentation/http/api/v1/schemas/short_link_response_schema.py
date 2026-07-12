@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel
+from pydantic import AwareDatetime, BaseModel, HttpUrl
 
 
 class ShortLinkResponseSchema(BaseModel):
@@ -9,5 +9,6 @@ class ShortLinkResponseSchema(BaseModel):
     id: UUID
     original_url: str
     short_code: str
+    short_link_url: HttpUrl
     created_at: AwareDatetime
     expires_at: AwareDatetime | None

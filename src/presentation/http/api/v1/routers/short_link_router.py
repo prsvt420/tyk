@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
+from pydantic import HttpUrl
 
 from src.application.dtos import (
     CreateShortLinkDTO,
     ShortLinkDTO,
 )
 from src.application.use_cases import CreateShortLinkUseCase
+from src.config import application_settings
 from src.presentation.http.api.v1.schemas import (
     CreateShortLinkRequestSchema,
     ShortLinkResponseSchema,
@@ -25,6 +27,7 @@ short_link_router: APIRouter = APIRouter(tags=["short-links"])
 )
 async def create_short_link(
     request: CreateShortLinkRequestSchema,
+    response: Response,
     use_case: Annotated[
         CreateShortLinkUseCase,
         Depends(provide_create_short_link_use_case),
@@ -38,10 +41,18 @@ async def create_short_link(
         )
     )
 
+    short_link_url: HttpUrl = HttpUrl(
+        f"{str(application_settings.public_base_url).rstrip('/')}"
+        f"/r/{short_link_dto.short_code}"
+    )
+
+    response.headers["Location"] = str(short_link_url)
+
     return ShortLinkResponseSchema(
         id=short_link_dto.id,
         original_url=short_link_dto.original_url,
         short_code=short_link_dto.short_code,
+        short_link_url=short_link_url,
         created_at=short_link_dto.created_at,
         expires_at=short_link_dto.expires_at,
     )
