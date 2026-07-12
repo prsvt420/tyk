@@ -5,8 +5,7 @@ from time import monotonic
 
 from fastapi import FastAPI
 
-from src.config.application_settings import application_settings
-from src.config.logging_config import configure_logging
+from src.config import application_settings, configure_logging
 from src.domain.exceptions import DomainError
 from src.presentation.http import domain_error_handler
 from src.presentation.http.api.v1 import api_v1_router
