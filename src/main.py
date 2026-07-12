@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from src.config.application_settings import application_settings
 from src.config.logging_config import configure_logging
 from src.domain.exceptions import DomainError
+from src.presentation.http import domain_error_handler
 from src.presentation.http.api.v1 import api_v1_router
-from src.presentation.http.exception_handlers import handle_domain_error
 from src.presentation.http.public import short_link_redirect_router
 
 logger: Logger = getLogger(name=__name__)
@@ -58,7 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(router=api_v1_router, prefix="/api/v1")
 
     app.add_exception_handler(
-        exc_class_or_status_code=DomainError, handler=handle_domain_error
+        exc_class_or_status_code=DomainError, handler=domain_error_handler
     )
 
     return app

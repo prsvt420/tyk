@@ -6,11 +6,11 @@ from fastapi.responses import JSONResponse
 from src.domain.exceptions import DomainError
 
 
-async def handle_domain_error(
+async def domain_error_handler(
     request: Request,
     error: Exception,
 ) -> JSONResponse:
-    """Convert domain errors to HTTP responses."""
+    """Convert domain error to HTTP response."""
     domain_error: DomainError = cast(DomainError, error)
 
     return JSONResponse(
