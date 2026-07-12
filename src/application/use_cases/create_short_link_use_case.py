@@ -5,7 +5,10 @@ from src.application.dtos import (
     CreateShortLinkDTO,
     ShortLinkDTO,
 )
-from src.application.exceptions import ShortCodeGenerationError
+from src.application.exceptions import (
+    ShortCodeAlreadyExistsError,
+    ShortCodeGenerationError,
+)
 from src.application.interfaces import (
     ShortCodeGeneratorInterface,
     ShortLinkRepositoryInterface,
@@ -37,31 +40,22 @@ class CreateShortLinkUseCase:
         original_url: OriginalURL = OriginalURL(
             value=create_short_link_dto.original_url
         )
-        short_code: ShortCode = await self._generate_unique_short_code()
 
-        short_link: ShortLink = ShortLink(
-            id=uuid4(),
-            original_url=original_url,
-            short_code=short_code,
-            expires_at=create_short_link_dto.expires_at,
-        )
-
-        await self._short_link_repository.save(short_link=short_link)
-
-        return ShortLinkMapper.to_dto(short_link=short_link)
-
-    async def _generate_unique_short_code(self) -> ShortCode:
-        """Generate unique short code."""
         for _ in range(MAX_SHORT_CODE_GENERATION_ATTEMPTS):
             short_code: ShortCode = await self._short_code_generator.generate()
 
-            short_code_exists: bool = (
-                await self._short_link_repository.exists_by_short_code(
-                    short_code=short_code
-                )
+            short_link: ShortLink = ShortLink(
+                id=uuid4(),
+                original_url=original_url,
+                short_code=short_code,
+                expires_at=create_short_link_dto.expires_at,
             )
 
-            if not short_code_exists:
-                return short_code
+            try:
+                await self._short_link_repository.save(short_link=short_link)
+            except ShortCodeAlreadyExistsError:
+                continue
+
+            return ShortLinkMapper.to_dto(short_link=short_link)
 
         raise ShortCodeGenerationError("Could not generate unique short code.")

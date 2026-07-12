@@ -13,11 +13,6 @@ class ShortLinkRepositoryInterface(ABC):
         ...
 
     @abstractmethod
-    async def exists_by_short_code(self, short_code: ShortCode) -> bool:
-        """Return whether short code exists."""
-        ...
-
-    @abstractmethod
     async def get_by_short_code(
         self, short_code: ShortCode
     ) -> ShortLink | None:

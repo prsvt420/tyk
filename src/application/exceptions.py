@@ -12,3 +12,7 @@ class ShortLinkNotFoundError(ApplicationError):
 
 class ShortLinkExpiredError(ApplicationError):
     """Raised when short link has expired."""
+
+
+class ShortCodeAlreadyExistsError(ApplicationError):
+    """Raised when short code already exists."""
