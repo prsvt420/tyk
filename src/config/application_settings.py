@@ -1,5 +1,6 @@
 from typing import ClassVar, Literal
 
+from pydantic import HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +14,7 @@ class ApplicationSettings(BaseSettings):
         "INFO"
     )
     app_description: str = "Сокращатель URL-адресов"
+    public_base_url: HttpUrl = HttpUrl("http://127.0.0.1:8000")
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         env_file=".env",
