@@ -1,3 +1,4 @@
+from logging import Logger, getLogger
 from uuid import uuid4
 
 from src.application.constants import MAX_SHORT_CODE_GENERATION_ATTEMPTS
@@ -16,6 +17,8 @@ from src.application.interfaces import (
 from src.application.mappers import ShortLinkMapper
 from src.domain.entities import ShortLink
 from src.domain.value_objects import OriginalURL, ShortCode
+
+logger: Logger = getLogger(name=__name__)
 
 
 class CreateShortLinkUseCase:
@@ -55,6 +58,20 @@ class CreateShortLinkUseCase:
                 await self._short_link_repository.save(short_link=short_link)
             except ShortCodeAlreadyExistsError:
                 continue
+
+            logger.info(
+                msg="Short link created.",
+                extra={
+                    "event": "short_link_created",
+                    "short_link_id": str(short_link.id),
+                    "short_code": short_link.short_code.value,
+                    "expires_at": (
+                        short_link.expires_at.isoformat()
+                        if short_link.expires_at is not None
+                        else None
+                    ),
+                },
+            )
 
             return ShortLinkMapper.to_dto(short_link=short_link)
 
