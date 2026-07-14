@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from logging import config
+from logging import Filter, LogRecord, config
 from pathlib import Path
 from time import gmtime, struct_time
 from typing import Any, SupportsIndex
@@ -7,11 +7,29 @@ from typing import Any, SupportsIndex
 from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
 
+from src.infrastructure.context_vars import request_id_context_var
+
 
 class _UTCJSONFormatter(JsonFormatter):
     """Format structured logs with UTC timestamps."""
 
     converter: Callable[[float | SupportsIndex | None], struct_time] = gmtime
+
+
+class RequestContextVarsFilter(Filter):
+    """Add request context vars to log records."""
+
+    def filter(self, record: LogRecord) -> bool:
+        """Add request context vars to a log record."""
+        request_context_vars: dict[str, str | None] = {
+            "request_id": request_id_context_var.get()
+        }
+
+        for context_var, value in request_context_vars.items():
+            if value is not None:
+                setattr(record, context_var, value)
+
+        return True
 
 
 def configure_logging(log_level: str = "INFO") -> None:
@@ -22,6 +40,11 @@ def configure_logging(log_level: str = "INFO") -> None:
     logging_config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": False,
+        "filters": {
+            "request_context": {
+                "()": RequestContextVarsFilter,
+            },
+        },
         "formatters": {
             "default": {
                 "()": _UTCJSONFormatter,
@@ -42,11 +65,13 @@ def configure_logging(log_level: str = "INFO") -> None:
             "console": {
                 "class": "logging.StreamHandler",
                 "formatter": "default",
+                "filters": ["request_context"],
                 "stream": "ext://sys.stdout",
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
                 "formatter": "default",
+                "filters": ["request_context"],
                 "filename": log_directory / "app.log",
                 "maxBytes": 5 * 1024 * 1024,
                 "backupCount": 5,
