@@ -9,7 +9,10 @@ from src.config import application_settings, configure_logging
 from src.domain.exceptions import DomainError
 from src.presentation.http import domain_error_handler
 from src.presentation.http.api.v1 import api_v1_router
-from src.presentation.http.middlewares import RequestIDMiddleware
+from src.presentation.http.middlewares import (
+    RequestIDMiddleware,
+    RequestLoggingMiddleware,
+)
 from src.presentation.http.public import short_link_redirect_router
 
 logger: Logger = getLogger(name=__name__)
@@ -61,6 +64,7 @@ def create_app() -> FastAPI:
         exc_class_or_status_code=DomainError, handler=domain_error_handler
     )
 
+    app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(RequestIDMiddleware)
 
     return app
