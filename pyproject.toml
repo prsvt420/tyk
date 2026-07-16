@@ -47,6 +47,7 @@ disallow_any_generics = true
 disallow_subclassing_any = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
+exclude = ["^alembic/versions/"]
 
 [dependency-groups]
 dev = [
