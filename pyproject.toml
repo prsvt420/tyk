@@ -17,6 +17,7 @@ dependencies = [
 [tool.black]
 line-length = 79
 target-version = ["py313"]
+force-exclude = "alembic/versions"
 
 [tool.isort]
 profile = "black"
