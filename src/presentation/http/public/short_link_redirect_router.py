@@ -28,7 +28,7 @@ async def redirect_short_link(
     short_code: str,
     use_case: Annotated[
         GetShortLinkByShortCodeUseCase,
-        Depends(provide_get_short_link_by_short_code_use_case),
+        Depends(dependency=provide_get_short_link_by_short_code_use_case),
     ],
 ) -> RedirectResponse:
     """Redirect short link."""

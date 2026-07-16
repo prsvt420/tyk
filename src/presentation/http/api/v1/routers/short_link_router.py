@@ -30,7 +30,7 @@ async def create_short_link(
     response: Response,
     use_case: Annotated[
         CreateShortLinkUseCase,
-        Depends(provide_create_short_link_use_case),
+        Depends(dependency=provide_create_short_link_use_case),
     ],
 ) -> ShortLinkResponseSchema:
     """Create short link."""

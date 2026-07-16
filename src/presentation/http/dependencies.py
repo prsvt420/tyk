@@ -1,3 +1,9 @@
+from collections.abc import AsyncIterator
+from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.application.interfaces import (
     ShortCodeGeneratorInterface,
     ShortLinkRepositoryInterface,
@@ -6,18 +12,29 @@ from src.application.use_cases import (
     CreateShortLinkUseCase,
     GetShortLinkByShortCodeUseCase,
 )
-from src.infrastructure.generators import RandomShortCodeGenerator
-from src.infrastructure.repositories import InMemoryShortLinkRepository
-
-_short_link_repository: ShortLinkRepositoryInterface = (
-    InMemoryShortLinkRepository()
+from src.infrastructure.database.async_session_factory import (
+    async_session_factory,
 )
+from src.infrastructure.generators import RandomShortCodeGenerator
+from src.infrastructure.repositories import PostgreSQLShortLinkRepository
+
 _short_code_generator: ShortCodeGeneratorInterface = RandomShortCodeGenerator()
 
 
-def provide_short_link_repository() -> ShortLinkRepositoryInterface:
+async def provide_async_session() -> AsyncIterator[AsyncSession]:
+    """Provide async session."""
+    async with async_session_factory() as async_session:
+        yield async_session
+
+
+def provide_short_link_repository(
+    async_session: Annotated[
+        AsyncSession,
+        Depends(dependency=provide_async_session),
+    ],
+) -> ShortLinkRepositoryInterface:
     """Provide short link repository."""
-    return _short_link_repository
+    return PostgreSQLShortLinkRepository(async_session=async_session)
 
 
 def provide_short_code_generator() -> ShortCodeGeneratorInterface:
@@ -25,18 +42,30 @@ def provide_short_code_generator() -> ShortCodeGeneratorInterface:
     return _short_code_generator
 
 
-def provide_create_short_link_use_case() -> CreateShortLinkUseCase:
+def provide_create_short_link_use_case(
+    short_link_repository: Annotated[
+        ShortLinkRepositoryInterface,
+        Depends(dependency=provide_short_link_repository),
+    ],
+    short_code_generator: Annotated[
+        ShortCodeGeneratorInterface,
+        Depends(dependency=provide_short_code_generator),
+    ],
+) -> CreateShortLinkUseCase:
     """Provide create short link use case."""
     return CreateShortLinkUseCase(
-        short_link_repository=provide_short_link_repository(),
-        short_code_generator=provide_short_code_generator(),
+        short_link_repository=short_link_repository,
+        short_code_generator=short_code_generator,
     )
 
 
-def provide_get_short_link_by_short_code_use_case() -> (
-    GetShortLinkByShortCodeUseCase
-):
+def provide_get_short_link_by_short_code_use_case(
+    short_link_repository: Annotated[
+        ShortLinkRepositoryInterface,
+        Depends(dependency=provide_short_link_repository),
+    ],
+) -> GetShortLinkByShortCodeUseCase:
     """Provide get short link by short code use case."""
     return GetShortLinkByShortCodeUseCase(
-        short_link_repository=provide_short_link_repository(),
+        short_link_repository=short_link_repository,
     )
