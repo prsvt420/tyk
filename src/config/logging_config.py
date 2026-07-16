@@ -2,7 +2,7 @@ from collections.abc import Callable
 from logging import Filter, LogRecord, config
 from pathlib import Path
 from time import gmtime, struct_time
-from typing import Any, SupportsIndex
+from typing import Any, Literal, SupportsIndex
 
 from pythonjsonlogger.core import RESERVED_ATTRS
 from pythonjsonlogger.json import JsonFormatter
@@ -32,10 +32,18 @@ class RequestContextVarsFilter(Filter):
         return True
 
 
-def configure_logging(log_level: str = "INFO") -> None:
+def configure_logging(
+    log_level: Literal[
+        "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    ] = "INFO",
+) -> None:
     """Configure application logging."""
     log_directory: Path = Path("logs")
     log_directory.mkdir(parents=True, exist_ok=True)
+
+    sqlalchemy_log_level: Literal["WARNING", "INFO"] = (
+        "INFO" if log_level == "DEBUG" else "WARNING"
+    )
 
     logging_config: dict[str, Any] = {
         "version": 1,
@@ -98,6 +106,22 @@ def configure_logging(log_level: str = "INFO") -> None:
                 "handlers": ["console", "file"],
                 "level": log_level,
                 "propagate": False,
+            },
+            "sqlalchemy.engine": {
+                "level": sqlalchemy_log_level,
+                "propagate": True,
+            },
+            "sqlalchemy.pool": {
+                "level": "WARNING",
+                "propagate": True,
+            },
+            "sqlalchemy.orm": {
+                "level": "WARNING",
+                "propagate": True,
+            },
+            "asyncpg": {
+                "level": "WARNING",
+                "propagate": True,
             },
         },
     }
