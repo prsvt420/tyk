@@ -48,3 +48,9 @@ repos:
       exclude: ^alembic/versions/
       pass_filenames: false
       require_serial: true
+
+- repo: https://github.com/commitizen-tools/commitizen
+  rev: v4.16.5
+  hooks:
+    - id: commitizen
+      stages: [commit-msg]
