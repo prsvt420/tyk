@@ -57,9 +57,17 @@ conventional_commits = true
 filter_unconventional = true
 sort_commits = "oldest"
 
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "uv"
+tag_format = "v$version"
+update_changelog_on_bump = false
+major_version_zero = true
+
 [dependency-groups]
 dev = [
     "black>=26.5.1",
+    "commitizen>=4.16.5",
     "flake8>=7.3.0",
     "flake8-bandit>=4.1.1",
     "flake8-bugbear>=25.11.29",
