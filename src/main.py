@@ -14,6 +14,7 @@ from src.presentation.http.middlewares import (
     RequestIDMiddleware,
     RequestLoggingMiddleware,
 )
+from src.presentation.http.operational import probe_router
 from src.presentation.http.public import short_link_redirect_router
 
 logger: Logger = getLogger(name=__name__)
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.include_router(router=probe_router)
     app.include_router(router=short_link_redirect_router)
     app.include_router(router=api_v1_router, prefix="/api/v1")
 
