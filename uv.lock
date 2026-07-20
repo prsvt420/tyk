@@ -1263,6 +1263,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "anyio" },
     { name = "black" },
     { name = "commitizen" },
     { name = "flake8" },
@@ -1295,6 +1296,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "anyio", specifier = ">=4.13.0" },
     { name = "black", specifier = ">=26.5.1" },
     { name = "commitizen", specifier = ">=4.16.5" },
     { name = "flake8", specifier = ">=7.3.0" },

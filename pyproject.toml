@@ -60,7 +60,10 @@ addopts = [
 
 [tool.coverage.run]
 branch = true
-source = ["src/domain"]
+source = [
+    "src/domain",
+    "src/application",
+]
 
 [tool.coverage.report]
 fail_under = 100
@@ -87,6 +90,7 @@ version_files = [
 
 [dependency-groups]
 dev = [
+    "anyio>=4.13.0",
     "black>=26.5.1",
     "commitizen>=4.16.5",
     "flake8>=7.3.0",
