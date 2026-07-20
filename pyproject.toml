@@ -63,6 +63,8 @@ branch = true
 source = [
     "src/domain",
     "src/application",
+    "src/infrastructure/generators",
+    "src.infrastructure.repositories.in_memory_short_link_repository",
 ]
 
 [tool.coverage.report]
