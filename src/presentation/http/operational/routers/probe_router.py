@@ -1,5 +1,9 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
+
+from src.presentation.http.dependencies import provide_application_readiness
 
 probe_router: APIRouter = APIRouter(tags=["probes"])
 
@@ -14,4 +18,29 @@ async def livez() -> JSONResponse:
     return JSONResponse(
         content={"status": "alive"},
         status_code=status.HTTP_200_OK,
+    )
+
+
+@probe_router.get(
+    path="/readyz",
+    response_class=JSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def readyz(
+    application_ready: Annotated[
+        bool,
+        Depends(dependency=provide_application_readiness),
+    ],
+) -> JSONResponse:
+    """Readyz."""
+    content: dict[str, str] = {"status": "ready"}
+    status_code: int = status.HTTP_200_OK
+
+    if not application_ready:
+        content = {"status": "not_ready"}
+        status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return JSONResponse(
+        content=content,
+        status_code=status_code,
     )

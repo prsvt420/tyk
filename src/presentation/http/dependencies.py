@@ -12,6 +12,7 @@ from src.application.use_cases import (
     CreateShortLinkUseCase,
     GetShortLinkByShortCodeUseCase,
 )
+from src.infrastructure.database import check_database_readiness
 from src.infrastructure.database.async_session_factory import (
     async_session_factory,
 )
@@ -25,6 +26,11 @@ async def provide_async_session() -> AsyncIterator[AsyncSession]:
     """Provide async session."""
     async with async_session_factory() as async_session:
         yield async_session
+
+
+async def provide_application_readiness() -> bool:
+    """Provide application readiness."""
+    return await check_database_readiness()
 
 
 def provide_short_link_repository(
