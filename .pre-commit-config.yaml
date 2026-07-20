@@ -49,6 +49,14 @@ repos:
       pass_filenames: false
       require_serial: true
 
+    - id: pytest
+      name: pytest
+      entry: uv run python scripts/run_pytest.py
+      language: system
+      pass_filenames: false
+      always_run: true
+      require_serial: true
+
 - repo: https://github.com/commitizen-tools/commitizen
   rev: v4.16.5
   hooks:
