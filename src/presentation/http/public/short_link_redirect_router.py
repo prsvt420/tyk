@@ -23,6 +23,26 @@ short_link_redirect_router: APIRouter = APIRouter(
     path="/r/{short_code}",
     response_class=RedirectResponse,
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    responses={
+        status.HTTP_307_TEMPORARY_REDIRECT: {
+            "description": "Temporary redirect to the original URL",
+            "headers": {
+                "Location": {
+                    "description": "Original URL",
+                    "schema": {
+                        "type": "string",
+                        "format": "uri",
+                    },
+                },
+            },
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Short link not found",
+        },
+        status.HTTP_410_GONE: {
+            "description": "Short link has expired",
+        },
+    },
 )
 async def redirect_short_link(
     short_code: str,

@@ -24,6 +24,20 @@ short_link_router: APIRouter = APIRouter(tags=["short-links"])
     path="/short-links",
     response_model=ShortLinkResponseSchema,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {
+            "description": "Short link created",
+            "headers": {
+                "Location": {
+                    "description": "URL of the created short link",
+                    "schema": {
+                        "type": "string",
+                        "format": "uri",
+                    },
+                },
+            },
+        },
+    },
 )
 async def create_short_link(
     request: CreateShortLinkRequestSchema,

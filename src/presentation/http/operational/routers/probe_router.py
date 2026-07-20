@@ -12,6 +12,11 @@ probe_router: APIRouter = APIRouter(tags=["probes"])
     path="/livez",
     response_class=JSONResponse,
     status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Application is alive",
+        },
+    },
 )
 async def livez() -> JSONResponse:
     """Livez."""
@@ -25,6 +30,14 @@ async def livez() -> JSONResponse:
     path="/readyz",
     response_class=JSONResponse,
     status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Application is ready to serve traffic",
+        },
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Application is not ready to serve traffic",
+        },
+    },
 )
 async def readyz(
     application_ready: Annotated[
