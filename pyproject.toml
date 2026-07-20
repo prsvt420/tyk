@@ -49,6 +49,23 @@ ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 exclude = ["^alembic/versions/"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov",
+    "--cov-report=term-missing",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/domain"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
 [tool.git-cliff.changelog]
 output = "CHANGELOG.md"
 
@@ -84,4 +101,6 @@ dev = [
     "mypy>=2.1.0",
     "pep8-naming>=0.15.1",
     "pre-commit>=4.6.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
 ]
