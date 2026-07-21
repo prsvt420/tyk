@@ -65,12 +65,7 @@ addopts = [
 
 [tool.coverage.run]
 branch = true
-source = [
-    "src/domain",
-    "src/application",
-    "src/infrastructure",
-    "src/presentation",
-]
+source = ["src"]
 
 [tool.coverage.report]
 fail_under = 100
