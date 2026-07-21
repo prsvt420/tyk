@@ -68,11 +68,7 @@ branch = true
 source = [
     "src/domain",
     "src/application",
-    "src/infrastructure/generators",
-    "src/infrastructure/database/model_mappers",
-    "src/infrastructure/database/models",
-    "src.infrastructure.repositories.in_memory_short_link_repository",
-    "src.infrastructure.repositories.postgresql_short_link_repository",
+    "src/infrastructure",
     "src/presentation/http/api/v1",
     "src/presentation/http/operational",
     "src/presentation/http/public",
