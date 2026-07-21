@@ -72,6 +72,7 @@ source = [
     "src/presentation/http/api/v1",
     "src/presentation/http/operational",
     "src/presentation/http/public",
+    "src.presentation.http.dependencies",
     "src.presentation.http.domain_error_handler",
 ]
 
