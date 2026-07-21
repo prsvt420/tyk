@@ -14,6 +14,6 @@ async def domain_error_handler(
     domain_error: DomainError = cast(DomainError, error)
 
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content={"detail": str(domain_error)},
     )
