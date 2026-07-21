@@ -73,6 +73,10 @@ source = [
     "src/infrastructure/database/models",
     "src.infrastructure.repositories.in_memory_short_link_repository",
     "src.infrastructure.repositories.postgresql_short_link_repository",
+    "src/presentation/http/api/v1",
+    "src/presentation/http/operational",
+    "src/presentation/http/public",
+    "src.presentation.http.domain_error_handler",
 ]
 
 [tool.coverage.report]
@@ -111,6 +115,7 @@ dev = [
     "flake8-pyproject>=1.2.4",
     "flake8-quotes>=3.4.0",
     "git-cliff>=2.13.1",
+    "httpx>=0.28.1",
     "isort>=8.0.1",
     "mypy>=2.1.0",
     "pep8-naming>=0.15.1",
