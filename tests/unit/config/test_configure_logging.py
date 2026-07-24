@@ -28,16 +28,7 @@ def test_configure_logging_builds_logging_configuration(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Configure handlers and dependency log levels."""
-    app_log_path: MagicMock = MagicMock()
-    log_directory_mock: MagicMock = MagicMock()
-    log_directory_mock.__truediv__.return_value = app_log_path
-    path_mock: MagicMock = MagicMock(return_value=log_directory_mock)
     dict_config_mock: MagicMock = MagicMock()
-    monkeypatch.setattr(
-        target=LOGGING_CONFIG_MODULE,
-        name="Path",
-        value=path_mock,
-    )
     monkeypatch.setattr(
         target=LOGGING_CONFIG_MODULE.config,
         name="dictConfig",
@@ -50,12 +41,6 @@ def test_configure_logging_builds_logging_configuration(
         "config"
     ]
 
-    path_mock.assert_called_once_with("logs")
-    log_directory_mock.mkdir.assert_called_once_with(
-        parents=True,
-        exist_ok=True,
-    )
-    log_directory_mock.__truediv__.assert_called_once_with("app.log")
     dict_config_mock.assert_called_once_with(config=logging_config)
     assert logging_config["version"] == 1
     assert logging_config["disable_existing_loggers"] is False
@@ -63,11 +48,18 @@ def test_configure_logging_builds_logging_configuration(
         logging_config["filters"]["request_context"]["()"]
         is RequestContextVarsFilter
     )
-    assert logging_config["handlers"]["file"]["filename"] is app_log_path
+    assert "file" not in logging_config["handlers"]
     assert logging_config["root"] == {
-        "handlers": ["console", "file"],
+        "handlers": ["console"],
         "level": log_level,
     }
+    assert logging_config["loggers"]["uvicorn"]["handlers"] == ["console"]
+    assert logging_config["loggers"]["uvicorn.error"]["handlers"] == [
+        "console"
+    ]
+    assert logging_config["loggers"]["uvicorn.access"]["handlers"] == [
+        "console"
+    ]
     assert (
         logging_config["loggers"]["sqlalchemy.engine"]["level"]
         == sqlalchemy_log_level

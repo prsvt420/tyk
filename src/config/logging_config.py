@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from logging import Filter, LogRecord, config
-from pathlib import Path
 from time import gmtime, struct_time
 from typing import Any, Literal, SupportsIndex
 
@@ -38,9 +37,6 @@ def configure_logging(
     ] = "INFO",
 ) -> None:
     """Configure application logging."""
-    log_directory: Path = Path("logs")
-    log_directory.mkdir(parents=True, exist_ok=True)
-
     sqlalchemy_log_level: Literal["WARNING", "INFO"] = (
         "INFO" if log_level == "DEBUG" else "WARNING"
     )
@@ -76,34 +72,32 @@ def configure_logging(
                 "filters": ["request_context"],
                 "stream": "ext://sys.stdout",
             },
-            "file": {
-                "class": "logging.handlers.RotatingFileHandler",
-                "formatter": "default",
-                "filters": ["request_context"],
-                "filename": log_directory / "app.log",
-                "maxBytes": 5 * 1024 * 1024,
-                "backupCount": 5,
-                "encoding": "utf-8",
-                "delay": True,
-            },
         },
         "root": {
-            "handlers": ["console", "file"],
+            "handlers": [
+                "console",
+            ],
             "level": log_level,
         },
         "loggers": {
             "uvicorn": {
-                "handlers": ["console", "file"],
+                "handlers": [
+                    "console",
+                ],
                 "level": log_level,
                 "propagate": False,
             },
             "uvicorn.error": {
-                "handlers": ["console", "file"],
+                "handlers": [
+                    "console",
+                ],
                 "level": log_level,
                 "propagate": False,
             },
             "uvicorn.access": {
-                "handlers": ["console", "file"],
+                "handlers": [
+                    "console",
+                ],
                 "level": log_level,
                 "propagate": False,
             },
