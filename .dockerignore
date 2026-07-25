@@ -1,0 +1,19 @@
+# Ignore everything by default
+**
+
+# Docker build files
+!Dockerfile
+!.dockerignore
+
+# Dependency manifests
+!pyproject.toml
+!uv.lock
+
+# Database migrations
+!alembic.ini
+!alembic/
+!alembic/**
+
+# Application source
+!src/
+!src/**
