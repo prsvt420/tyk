@@ -68,8 +68,8 @@ def create_app() -> FastAPI:
         exc_class_or_status_code=DomainError, handler=domain_error_handler
     )
 
-    app.add_middleware(RequestLoggingMiddleware)
-    app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(middleware_class=RequestLoggingMiddleware)
+    app.add_middleware(middleware_class=RequestIDMiddleware)
 
     return app
 

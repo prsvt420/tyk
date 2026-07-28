@@ -79,6 +79,6 @@ def test_create_app_configures_fastapi(
         handler=domain_error_handler,
     )
     assert app_mock.add_middleware.call_args_list == [
-        call(RequestLoggingMiddleware),
-        call(RequestIDMiddleware),
+        call(middleware_class=RequestLoggingMiddleware),
+        call(middleware_class=RequestIDMiddleware),
     ]
