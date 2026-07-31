@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
-from src.presentation.http.dependencies import provide_application_readiness
+from src.presentation.http.dependencies import provide_app_readiness
 
 probe_router: APIRouter = APIRouter(tags=["probes"])
 
@@ -14,7 +14,7 @@ probe_router: APIRouter = APIRouter(tags=["probes"])
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
-            "description": "Application is alive",
+            "description": "App is alive",
         },
     },
 )
@@ -32,24 +32,24 @@ async def livez() -> JSONResponse:
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
-            "description": "Application is ready to serve traffic",
+            "description": "App is ready to serve traffic",
         },
         status.HTTP_503_SERVICE_UNAVAILABLE: {
-            "description": "Application is not ready to serve traffic",
+            "description": "App is not ready to serve traffic",
         },
     },
 )
 async def readyz(
-    application_ready: Annotated[
+    app_ready: Annotated[
         bool,
-        Depends(dependency=provide_application_readiness),
+        Depends(dependency=provide_app_readiness),
     ],
 ) -> JSONResponse:
     """Readyz."""
     content: dict[str, str] = {"status": "ready"}
     status_code: int = status.HTTP_200_OK
 
-    if not application_ready:
+    if not app_ready:
         content = {"status": "not_ready"}
         status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 

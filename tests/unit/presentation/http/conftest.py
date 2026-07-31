@@ -13,7 +13,7 @@ from src.presentation.http.public import short_link_redirect_router
 
 @pytest.fixture
 def http_app() -> FastAPI:
-    """Create an HTTP application without middleware or lifespan."""
+    """Create an HTTP app without middleware or lifespan."""
     app: FastAPI = FastAPI()
     app.include_router(router=probe_router)
     app.include_router(router=short_link_redirect_router)

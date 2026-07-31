@@ -18,7 +18,7 @@ from src.application.use_cases import (
 from src.infrastructure.generators import RandomShortCodeGenerator
 from src.infrastructure.repositories import PostgreSQLShortLinkRepository
 from src.presentation.http.dependencies import (
-    provide_application_readiness,
+    provide_app_readiness,
     provide_async_session,
     provide_create_short_link_use_case,
     provide_get_short_link_by_short_code_use_case,
@@ -71,16 +71,16 @@ async def test_provide_async_session_manages_session_lifecycle(
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
-    argnames="application_ready",
+    argnames="app_ready",
     argvalues=[True, False],
 )
-async def test_provide_application_readiness_returns_database_status(
-    application_ready: bool,
+async def test_provide_app_readiness_returns_database_status(
+    app_ready: bool,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Return the database readiness result."""
     check_database_readiness_mock: AsyncMock = AsyncMock(
-        return_value=application_ready
+        return_value=app_ready
     )
     monkeypatch.setattr(
         target=DEPENDENCIES_MODULE,
@@ -88,9 +88,9 @@ async def test_provide_application_readiness_returns_database_status(
         value=check_database_readiness_mock,
     )
 
-    provided_application_ready: bool = await provide_application_readiness()
+    provided_app_ready: bool = await provide_app_readiness()
 
-    assert provided_application_ready is application_ready
+    assert provided_app_ready is app_ready
     check_database_readiness_mock.assert_awaited_once_with()
 
 

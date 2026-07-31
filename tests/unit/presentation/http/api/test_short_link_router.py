@@ -7,7 +7,7 @@ from pydantic import HttpUrl
 
 from src.application.dtos import CreateShortLinkDTO, ShortLinkDTO
 from src.application.mappers import ShortLinkMapper
-from src.config import application_settings
+from src.config import app_settings
 from src.presentation.http.dependencies import (
     provide_create_short_link_use_case,
 )
@@ -53,7 +53,7 @@ async def test_create_short_link_endpoint_returns_created_link(
         provide_use_case_stub
     )
     monkeypatch.setattr(
-        target=application_settings,
+        target=app_settings,
         name="public_base_url",
         value=HttpUrl("https://sho.rt/"),
     )

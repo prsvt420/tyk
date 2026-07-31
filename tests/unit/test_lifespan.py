@@ -16,10 +16,10 @@ MAIN_MODULE: ModuleType = import_module(name="src.main")
 async def test_lifespan_logs_and_disposes_database_engine(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Log application lifetime and dispose the database engine."""
+    """Log app lifetime and dispose the database engine."""
     app: FastAPI = FastAPI(
         debug=True,
-        title="Test application",
+        title="Test app",
         version="1.2.3",
     )
     dispose_mock: AsyncMock = AsyncMock()
@@ -49,18 +49,18 @@ async def test_lifespan_logs_and_disposes_database_engine(
     dispose_mock.assert_awaited_once_with()
     assert logger_mock.info.call_args_list == [
         call(
-            msg="Application started.",
+            msg="App started.",
             extra={
-                "event": "application_started",
+                "event": "app_started",
                 "debug": True,
-                "title": "Test application",
+                "title": "Test app",
                 "version": "1.2.3",
             },
         ),
         call(
-            msg="Application stopped.",
+            msg="App stopped.",
             extra={
-                "event": "application_stopped",
+                "event": "app_stopped",
                 "uptime_seconds": 2.346,
             },
         ),

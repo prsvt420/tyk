@@ -4,8 +4,8 @@ from pydantic import HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class ApplicationSettings(BaseSettings):
-    """Application settings."""
+class AppSettings(BaseSettings):
+    """App settings."""
 
     app_debug: bool = False
     app_title: str = "Тык"
@@ -25,4 +25,4 @@ class ApplicationSettings(BaseSettings):
     )
 
 
-application_settings: ApplicationSettings = ApplicationSettings()
+app_settings: AppSettings = AppSettings()

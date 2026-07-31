@@ -8,7 +8,7 @@ from src.application.dtos import (
     ShortLinkDTO,
 )
 from src.application.use_cases import CreateShortLinkUseCase
-from src.config import application_settings
+from src.config import app_settings
 from src.presentation.http.api.v1.schemas import (
     CreateShortLinkRequestSchema,
     ShortLinkResponseSchema,
@@ -56,7 +56,7 @@ async def create_short_link(
     )
 
     short_link_url: HttpUrl = HttpUrl(
-        f"{str(application_settings.public_base_url).rstrip('/')}"
+        f"{str(app_settings.public_base_url).rstrip('/')}"
         f"/r/{short_link_dto.short_code}"
     )
 

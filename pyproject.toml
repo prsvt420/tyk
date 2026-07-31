@@ -89,7 +89,7 @@ tag_format = "v$version"
 update_changelog_on_bump = false
 major_version_zero = true
 version_files = [
-    "src/config/application_settings.py",
+    "src/config/app_settings.py",
     ".env.template",
 ]
 

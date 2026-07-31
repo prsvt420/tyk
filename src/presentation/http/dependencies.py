@@ -28,8 +28,8 @@ async def provide_async_session() -> AsyncIterator[AsyncSession]:
         yield async_session
 
 
-async def provide_application_readiness() -> bool:
-    """Provide application readiness."""
+async def provide_app_readiness() -> bool:
+    """Provide app readiness."""
     return await check_database_readiness()
 
 

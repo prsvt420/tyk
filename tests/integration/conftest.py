@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.config import application_settings
+from src.config import app_settings
 from src.infrastructure.database.models import ShortLinkModel
 
 TEST_DATABASE_NAME_PREFIX: str = "tyk_test_"
@@ -20,14 +20,10 @@ TEST_DATABASE_NAME_PREFIX: str = "tyk_test_"
 @pytest.fixture(scope="session")
 async def postgresql_database_url() -> AsyncGenerator[str]:
     """Create and remove an isolated PostgreSQL database."""
-    application_database_url: URL = make_url(
-        name_or_url=application_settings.database_url
-    )
+    app_database_url: URL = make_url(name_or_url=app_settings.database_url)
     database_name: str = f"{TEST_DATABASE_NAME_PREFIX}{uuid4().hex}"
-    admin_database_url: URL = application_database_url.set(database="postgres")
-    test_database_url: URL = application_database_url.set(
-        database=database_name
-    )
+    admin_database_url: URL = app_database_url.set(database="postgres")
+    test_database_url: URL = app_database_url.set(database=database_name)
     admin_async_engine: AsyncEngine = create_async_engine(
         url=admin_database_url,
         isolation_level="AUTOCOMMIT",

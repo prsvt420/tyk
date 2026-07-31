@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, call
 import pytest
 from fastapi import FastAPI
 
-from src.config.application_settings import ApplicationSettings
+from src.config.app_settings import AppSettings
 from src.domain.exceptions import DomainError
 from src.main import create_app, lifespan
 from src.presentation.http import domain_error_handler
@@ -23,29 +23,27 @@ MAIN_MODULE: ModuleType = import_module(name="src.main")
 def test_create_app_configures_fastapi(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Create a FastAPI application with configured HTTP components."""
-    application_settings: ApplicationSettings = (
-        ApplicationSettings.model_validate(
-            obj={
-                "app_debug": True,
-                "app_title": "Test application",
-                "app_version": "1.2.3",
-                "log_level": "DEBUG",
-                "app_description": "Test description",
-                "public_base_url": "https://example.com",
-                "database_url": (
-                    "postgresql+asyncpg://user:password@localhost:5432/tyk"
-                ),
-            }
-        )
+    """Create a FastAPI app with configured HTTP components."""
+    app_settings: AppSettings = AppSettings.model_validate(
+        obj={
+            "app_debug": True,
+            "app_title": "Test app",
+            "app_version": "1.2.3",
+            "log_level": "DEBUG",
+            "app_description": "Test description",
+            "public_base_url": "https://example.com",
+            "database_url": (
+                "postgresql+asyncpg://user:password@localhost:5432/tyk"
+            ),
+        }
     )
     app_mock: MagicMock = MagicMock(spec=FastAPI)
     fastapi_mock: MagicMock = MagicMock(return_value=app_mock)
     configure_logging_mock: MagicMock = MagicMock()
     monkeypatch.setattr(
         target=MAIN_MODULE,
-        name="application_settings",
-        value=application_settings,
+        name="app_settings",
+        value=app_settings,
     )
     monkeypatch.setattr(
         target=MAIN_MODULE,
@@ -64,7 +62,7 @@ def test_create_app_configures_fastapi(
     configure_logging_mock.assert_called_once_with(log_level="DEBUG")
     fastapi_mock.assert_called_once_with(
         debug=True,
-        title="Test application",
+        title="Test app",
         version="1.2.3",
         description="Test description",
         lifespan=lifespan,

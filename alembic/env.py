@@ -12,12 +12,12 @@ from sqlalchemy.ext.asyncio import (
 import src.infrastructure.database.models  # noqa: F401
 from alembic import context
 from alembic.config import Config
-from src.config import application_settings
+from src.config import app_settings
 from src.infrastructure.database import Base
 
 alembic_config: Config = context.config
 
-database_url: str = application_settings.database_url
+database_url: str = app_settings.database_url
 
 alembic_config.set_main_option(
     name="sqlalchemy.url",

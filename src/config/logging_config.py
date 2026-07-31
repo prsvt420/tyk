@@ -36,7 +36,7 @@ def configure_logging(
         "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
     ] = "INFO",
 ) -> None:
-    """Configure application logging."""
+    """Configure app logging."""
     sqlalchemy_log_level: Literal["WARNING", "INFO"] = (
         "INFO" if log_level == "DEBUG" else "WARNING"
     )

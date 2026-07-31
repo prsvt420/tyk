@@ -5,7 +5,7 @@ from time import monotonic
 
 from fastapi import FastAPI
 
-from src.config import application_settings, configure_logging
+from src.config import app_settings, configure_logging
 from src.domain.exceptions import DomainError
 from src.infrastructure.database.async_engine import async_engine
 from src.presentation.http import domain_error_handler
@@ -22,13 +22,13 @@ logger: Logger = getLogger(name=__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Manage application lifespan."""
+    """Manage app lifespan."""
     started_at: float = monotonic()
 
     logger.info(
-        msg="Application started.",
+        msg="App started.",
         extra={
-            "event": "application_started",
+            "event": "app_started",
             "debug": app.debug,
             "title": app.title,
             "version": app.version,
@@ -40,23 +40,23 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     finally:
         await async_engine.dispose()
         logger.info(
-            msg="Application stopped.",
+            msg="App stopped.",
             extra={
-                "event": "application_stopped",
+                "event": "app_stopped",
                 "uptime_seconds": round(monotonic() - started_at, 3),
             },
         )
 
 
 def create_app() -> FastAPI:
-    """Create and configure FastAPI application."""
-    configure_logging(log_level=application_settings.log_level)
+    """Create and configure FastAPI app."""
+    configure_logging(log_level=app_settings.log_level)
 
     app: FastAPI = FastAPI(
-        debug=application_settings.app_debug,
-        title=application_settings.app_title,
-        version=application_settings.app_version,
-        description=application_settings.app_description,
+        debug=app_settings.app_debug,
+        title=app_settings.app_title,
+        version=app_settings.app_version,
+        description=app_settings.app_description,
         lifespan=lifespan,
     )
 
