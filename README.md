@@ -226,22 +226,25 @@ integration tests. Install the development dependencies before running it:
    uv sync
    ```
 
-Unit tests run by default and do not require external infrastructure:
+By default, all unit and integration tests run with coverage.
+Integration tests require a running [PostgreSQL](https://www.postgresql.org/docs/18/) instance configured through
+`DATABASE_URL`. The database user must be able to connect to the `postgres` database and create and drop databases because each test session uses an isolated temporary database.
+
+Run the complete test suite with:
 
    ```bash
    uv run pytest
    ```
 
-Integration tests require a running
-[PostgreSQL](https://www.postgresql.org/docs/18/) instance configured through
-`DATABASE_URL`. The database user must have permission to create and drop
-databases because each test session uses an isolated temporary database.
-
-Run the complete test suite with:
+To run only unit tests without a running database:
 
    ```bash
-   uv run pytest -m "integration or not integration"
+   uv run pytest -m "not integration"
    ```
+
+Valid application settings, including `DATABASE_URL`, are still required.
+
+The [pre-commit](https://pre-commit.com/) test hook runs the complete suite, so [PostgreSQL](https://www.postgresql.org/docs/18/) must also be available when committing.
 
 The project enforces 100% test coverage, including branch coverage.
 

@@ -60,8 +60,6 @@ markers = [
 addopts = [
     "--strict-config",
     "--strict-markers",
-    "-m",
-    "not integration",
     "--cov",
     "--cov-report=term-missing",
 ]
