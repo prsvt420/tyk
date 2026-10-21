@@ -1,6 +1,7 @@
 # Tyk
 
 [![Python 3.13](https://img.shields.io/badge/Python-3.13-green)](https://docs.python.org/3.13/)
+[![CI](https://github.com/prsvt420/tyk/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/prsvt420/tyk/actions/workflows/ci.yaml)
 [![License: MIT](https://img.shields.io/github/license/prsvt420/tyk)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/prsvt420/tyk?branch=main&color=green)](https://github.com/prsvt420/tyk/commits/main)
 
@@ -216,6 +217,7 @@ Code quality is maintained through:
 - [mypy](https://mypy.readthedocs.io/en/stable/) in strict mode for static type checking
 - [pytest](https://docs.pytest.org/en/stable/) and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) with a 100% coverage requirement
 - [pre-commit](https://pre-commit.com/) hooks for automated checks before commits
+- [GitHub Actions](https://docs.github.com/en/actions) for automated checks on pull requests and pushes to `main`
 
 ## Testing
 
