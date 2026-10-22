@@ -44,9 +44,9 @@ Tyk is a high-performance URL shortening service built to handle large volumes o
 
 ## Architecture
 
-The project follows Clean Architecture principles, keeping its core business logic
+The project follows [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) principles, keeping its core business logic
 independent of delivery mechanisms, persistence, and external systems. See the
-[Architecture](docs/ARCHITECTURE.md) for details.
+[Architecture](ARCHITECTURE.md) for details.
 
 ## Configuration
 
