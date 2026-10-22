@@ -109,8 +109,9 @@ Create a short link with [curl](https://curl.se/docs/manpage.html):
    }'
    ```
 
-Both fields are required. Set `expires_at` to `null` for a link without
-expiration, or provide a future ISO 8601 timestamp with a timezone.
+Only `original_url` is required. Omit `expires_at` or set it to `null` for a
+link without expiration. To set an expiration, provide a future ISO 8601
+timestamp with a timezone.
 
 The API returns `201 Created`. Example response body:
 

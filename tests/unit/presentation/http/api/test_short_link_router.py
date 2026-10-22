@@ -24,15 +24,22 @@ EXPIRES_AT: datetime = datetime(
 
 @pytest.mark.anyio
 @pytest.mark.parametrize(
-    argnames=("expires_at", "serialized_expires_at"),
+    argnames=("expires_at", "serialized_expires_at", "include_expires_at"),
     argvalues=[
-        (None, None),
-        (EXPIRES_AT, "2030-01-02T00:00:00Z"),
+        pytest.param(None, None, False, id="omitted-expiration"),
+        pytest.param(None, None, True, id="null-expiration"),
+        pytest.param(
+            EXPIRES_AT,
+            "2030-01-02T00:00:00Z",
+            True,
+            id="explicit-expiration",
+        ),
     ],
 )
 async def test_create_short_link_endpoint_returns_created_link(
     expires_at: datetime | None,
     serialized_expires_at: str | None,
+    include_expires_at: bool,
     http_app: FastAPI,
     http_client: AsyncClient,
     monkeypatch: pytest.MonkeyPatch,
@@ -58,12 +65,15 @@ async def test_create_short_link_endpoint_returns_created_link(
         value=HttpUrl("https://sho.rt/"),
     )
 
+    request_body: dict[str, str | None] = {
+        "original_url": short_link_dto.original_url,
+    }
+    if include_expires_at:
+        request_body["expires_at"] = serialized_expires_at
+
     response: Response = await http_client.post(
         url="/api/v1/short-links",
-        json={
-            "original_url": short_link_dto.original_url,
-            "expires_at": serialized_expires_at,
-        },
+        json=request_body,
     )
 
     assert response.status_code == status.HTTP_201_CREATED
