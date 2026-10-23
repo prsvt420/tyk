@@ -5,9 +5,9 @@ in the project. Apply them when adding or changing code. Architectural
 responsibilities and runtime behavior are documented in
 [Architecture](ARCHITECTURE.md).
 
-The automated rules come from [pyproject.toml](pyproject.toml) and
-[pre-commit configuration](.pre-commit-config.yaml). The remaining guidance
-describes the design and readability decisions to consider during review.
+The automated rules come from `pyproject.toml` and
+`.pre-commit-config.yaml`. The remaining guidance describes the design and
+readability decisions to consider during review.
 
 ## Programming Principles
 

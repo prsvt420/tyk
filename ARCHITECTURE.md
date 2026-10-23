@@ -269,7 +269,7 @@ length can stop application loading before HTTP handlers are available.
 
 ## Initialization and Lifecycle
 
-The server loads the exported `app` from [main.py](src/main.py).
+The server loads the exported `app` from `src/main.py`.
 The application lifecycle consists of the following stages:
 
 1. Module initialization. Settings are loaded and validated, and the
