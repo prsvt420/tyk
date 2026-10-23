@@ -50,8 +50,10 @@ type checking and tests. The `commit-msg` hook validates commit
 messages with [Commitizen](https://commitizen-tools.github.io/commitizen/).
 Both are configured in `.pre-commit-config.yaml`.
 
-The test hook always runs the complete suite, including integration tests,
-so PostgreSQL must also be available when committing documentation changes.
+The test hook always runs the full [pytest](https://docs.pytest.org/en/stable/)
+suite, including integration tests, so
+[PostgreSQL](https://www.postgresql.org/docs/18/) must also be available
+when committing documentation changes.
 If a formatter changes files, review the changes and stage them again
 before retrying the commit.
 
@@ -78,7 +80,8 @@ changes:
 uv run pre-commit run --all-files
 ```
 
-This command includes the complete test suite. To run tests separately:
+This command includes the full [pytest](https://docs.pytest.org/en/stable/)
+suite. To run it separately:
 
 ```bash
 uv run pytest
@@ -90,15 +93,34 @@ For a unit-test-only run without a running database:
 uv run pytest -m "not integration"
 ```
 
-Valid application settings are still required. Run the complete suite
-before submitting changes.
+Valid application settings are still required. Run all unit and integration
+tests before submitting changes.
 
 The [GitHub Actions](https://docs.github.com/en/actions) workflow in
-`.github/workflows/ci.yaml` installs locked dependencies, applies migrations
-and runs `pre-commit run --all-files` for pull requests and pushes to `main`.
+`.github/workflows/ci.yaml` installs locked dependencies, applies migrations,
+runs `alembic check` and runs `pre-commit run --all-files` for pull requests
+and pushes to `main`.
 
 The `commit-msg` check runs separately when creating a commit; the command
 above and the CI workflow do not validate commit messages.
+
+## Load Testing
+
+Load tests use [Locust](https://docs.locust.io/en/stable/) and run separately
+against a running application and its configured database.
+[pytest](https://docs.pytest.org/en/stable/),
+[pre-commit](https://pre-commit.com/) and the CI workflow do not execute
+these scenarios.
+See [Load Testing](README.md#load-testing) for the available user classes,
+commands and report options.
+
+When adding or changing a scenario, validate the expected response and
+group dynamic request paths under stable names in the statistics. Account
+for setup requests when interpreting the results.
+
+Save reports under `tests/load/results/<version>/<scenario>/<run>/`.
+Keep a separate `README.md` alongside the reports to record testing
+information.
 
 ## Commit Messages
 

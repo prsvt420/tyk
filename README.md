@@ -31,6 +31,7 @@ Tyk is a high-performance URL shortening service built to handle large volumes o
 - [pytest](https://docs.pytest.org/en/stable/)
 - [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/)
 - [HTTPX](https://www.python-httpx.org/)
+- [Locust](https://docs.locust.io/en/stable/)
 - [mypy](https://mypy.readthedocs.io/en/stable/)
 - [Black](https://black.readthedocs.io/en/stable/)
 - [isort](https://isort.readthedocs.io/en/latest/)
@@ -225,18 +226,21 @@ Code quality is maintained through:
 
 ## Testing
 
-The test suite uses [pytest](https://docs.pytest.org/en/stable/) for unit and
-integration tests. Install the development dependencies before running it:
+Unit and integration tests use [pytest](https://docs.pytest.org/en/stable/).
+Load tests use [Locust](https://docs.locust.io/en/stable/) and run separately;
+see [Load Testing](#load-testing). Install the development dependencies
+before running tests:
 
    ```bash
    uv sync
    ```
 
-By default, all unit and integration tests run with coverage.
+By default, [pytest](https://docs.pytest.org/en/stable/) runs all unit and
+integration tests with coverage.
 Integration tests require a running [PostgreSQL](https://www.postgresql.org/docs/18/) instance configured through
 `DATABASE_URL`. The database user must be able to connect to the `postgres` database and create and drop databases because each test session uses an isolated temporary database.
 
-Run the complete test suite with:
+Run all unit and integration tests with:
 
    ```bash
    uv run pytest
@@ -250,9 +254,83 @@ To run only unit tests without a running database:
 
 Valid application settings, including `DATABASE_URL`, are still required.
 
-The [pre-commit](https://pre-commit.com/) test hook runs the complete suite, so [PostgreSQL](https://www.postgresql.org/docs/18/) must also be available when committing.
+The [pre-commit](https://pre-commit.com/) test hook runs the full
+[pytest](https://docs.pytest.org/en/stable/) suite, so
+[PostgreSQL](https://www.postgresql.org/docs/18/) must also be available
+when committing.
 
 The project enforces 100% test coverage, including branch coverage.
+
+## Load Testing
+
+[Locust](https://docs.locust.io/en/stable/) scenarios are defined in
+`tests/load/locustfile.py`. They send requests to a running application and
+create records in its configured database. Use a development instance for
+these runs. [pytest](https://docs.pytest.org/en/stable/),
+[pre-commit](https://pre-commit.com/) and the CI workflow do not run load tests.
+
+Prepare the environment using [Local Development](#local-development),
+and use this server command for load testing:
+
+```bash
+uv run uvicorn src.main:app --host 127.0.0.1 --port 8000 --workers 1
+```
+
+This starts one application worker without automatic reload. Run
+[Locust](https://docs.locust.io/en/stable/) from another terminal with the
+development dependencies installed.
+
+| User class              | Behavior                                                                                                         |
+|-------------------------|------------------------------------------------------------------------------------------------------------------|
+| `CreateShortLinkUser`   | Creates links without expiration and checks for `201` with a non-empty string `short_code` in the JSON response. |
+| `RedirectShortLinkUser` | Creates one link at startup, repeatedly requests it and checks for `307` with the expected `Location`.           |
+
+Both classes use `constant(0)` and a five-second request timeout. Users
+start the next task without an artificial pause. Redirect requests do not
+follow the destination URL.
+
+The examples below run short, 30-second scenario checks. `-u` sets the
+number of users, `-r` sets the user spawn rate per second, and `-t` sets
+the total run time, including the ramp-up period.
+
+Creation only:
+
+```bash
+uv run locust -f tests/load/locustfile.py --host http://127.0.0.1:8000 --headless -u 1 -r 1 -t 30s CreateShortLinkUser
+```
+
+Redirects only:
+
+```bash
+uv run locust -f tests/load/locustfile.py --host http://127.0.0.1:8000 --headless -u 1 -r 1 -t 30s RedirectShortLinkUser
+```
+
+Mixed traffic, with one user of each class:
+
+```bash
+uv run locust -f tests/load/locustfile.py --host http://127.0.0.1:8000 --headless -u 2 -r 2 -t 30s CreateShortLinkUser RedirectShortLinkUser
+```
+
+Equal class weights control the distribution of users; they do not
+guarantee equal request rates for creation and redirects.
+
+Each redirect user makes a setup POST, recorded as
+`/api/v1/short-links (setup)`. It contributes to the aggregate statistics.
+Read redirect measurements from the GET `/r/{short_code}` row separately.
+
+### Reports
+
+Save each run under `tests/load/results/<version>/<scenario>/<run>/`, for example
+`tests/load/results/v0.1.0/create/run-01/`. Use a separate directory for each repeat.
+Add these options to the selected [Locust](https://docs.locust.io/en/stable/)
+command to save reports:
+
+- `--html tests/load/results/v0.1.0/create/run-01/locust_report.html` saves an HTML report.
+- `--csv tests/load/results/v0.1.0/create/run-01/locust` sets the prefix for CSV files.
+
+Adjust the version, scenario and run directory for each measurement.
+Keep a separate `README.md` alongside the reports to record testing
+information.
 
 ## Changelog
 

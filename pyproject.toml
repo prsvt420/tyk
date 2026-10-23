@@ -106,6 +106,7 @@ dev = [
     "git-cliff>=2.13.1",
     "httpx>=0.28.1",
     "isort>=8.0.1",
+    "locust>=2.47.0",
     "mypy>=2.1.0",
     "pep8-naming>=0.15.1",
     "pre-commit>=4.6.0",
