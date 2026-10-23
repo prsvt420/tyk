@@ -211,6 +211,9 @@ The API will be available at `http://127.0.0.1:8000`. See the interactive
 The codebase follows clean code principles, including clear naming, small
 focused components, explicit dependencies, and separation of concerns.
 
+See [Code Style](CODE_STYLE.md) for programming principles and coding
+conventions.
+
 Code quality is maintained through:
 
 - [Black](https://black.readthedocs.io/en/stable/) and [isort](https://pycqa.github.io/isort/) for code formatting
