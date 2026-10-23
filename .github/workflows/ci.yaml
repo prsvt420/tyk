@@ -59,5 +59,8 @@ jobs:
       - name: Apply database migrations
         run: uv run alembic upgrade head
 
+      - name: Check for missing migrations
+        run: uv run alembic check
+
       - name: Run checks and tests
         run: uv run pre-commit run --all-files
