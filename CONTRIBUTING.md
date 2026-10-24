@@ -119,8 +119,7 @@ group dynamic request paths under stable names in the statistics. Account
 for setup requests when interpreting the results.
 
 Save reports under `tests/load/results/<version>/<scenario>/<run>/`.
-Keep a separate `README.md` alongside the reports to record testing
-information.
+Record testing conditions and results in [Benchmarks](BENCHMARKS.md).
 
 ## Commit Messages
 

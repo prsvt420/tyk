@@ -6,7 +6,9 @@ repos:
   -   id: check-json
   -   id: check-toml
   -   id: end-of-file-fixer
+      exclude: ^tests/load/results/
   -   id: trailing-whitespace
+      exclude: ^tests/load/results/
   -   id: check-merge-conflict
   -   id: check-case-conflict
   -   id: debug-statements

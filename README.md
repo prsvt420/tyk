@@ -329,8 +329,14 @@ command to save reports:
 - `--csv tests/load/results/v0.1.0/create/run-01/locust` sets the prefix for CSV files.
 
 Adjust the version, scenario and run directory for each measurement.
-Keep a separate `README.md` alongside the reports to record testing
-information.
+Record testing conditions and results in `BENCHMARKS.md`.
+
+## Benchmarks
+
+[Benchmarks](BENCHMARKS.md) describes the methodology and results for
+short link creation, redirects and mixed traffic. It includes RPS,
+response-time percentiles and failure counts, together with test
+conditions and raw report locations.
 
 ## Changelog
 
