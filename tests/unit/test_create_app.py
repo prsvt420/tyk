@@ -35,6 +35,7 @@ def test_create_app_configures_fastapi(
             "database_url": (
                 "postgresql+asyncpg://user:password@localhost:5432/tyk"
             ),
+            "cache_url": "redis://localhost:6379/0",
         }
     )
     app_mock: MagicMock = MagicMock(spec=FastAPI)

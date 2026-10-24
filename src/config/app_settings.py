@@ -15,6 +15,7 @@ class AppSettings(BaseSettings):
     )
     app_description: str = "Сокращатель URL-адресов"
     public_base_url: HttpUrl = HttpUrl("http://127.0.0.1:8000")
+    cache_url: str
     database_url: str
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(

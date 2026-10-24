@@ -27,6 +27,9 @@ Tyk is a high-performance URL shortening service built to handle large volumes o
 - [PostgreSQL 18](https://www.postgresql.org/docs/18/)
 - [SQLAlchemy 2](https://docs.sqlalchemy.org/en/20/)
 - [asyncpg](https://magicstack.github.io/asyncpg/current/)
+- [Redis](https://redis.io/docs/latest/)
+- [redis-py](https://redis.io/docs/latest/develop/clients/redis-py/)
+- [hiredis](https://github.com/redis/hiredis-py)
 - [Alembic](https://alembic.sqlalchemy.org/en/latest/)
 - [pytest](https://docs.pytest.org/en/stable/)
 - [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/)
@@ -62,6 +65,7 @@ starting point and adjust the values for your environment.
 | `APP_DESCRIPTION`   | Application description shown in the API documentation.                                                                                                                                                                                                             |
 | `LOG_LEVEL`         | Minimum log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`.                                                                                                                                                                                              |
 | `PUBLIC_BASE_URL`   | Public base URL for generated short links, e.g. `https://tyk.example`; the app appends `/r/{short_code}`.                                                                                                                                                           |
+| `CACHE_URL`         | [Redis](https://redis.io/docs/latest/) connection URL, e.g. `redis://localhost:6379/0`.                                                                                                                                                                             |
 | `DATABASE_URL`      | [PostgreSQL](https://www.postgresql.org/docs/18/) connection URL for the app and [Alembic](https://alembic.sqlalchemy.org/en/latest/); [Docker Compose](https://docs.docker.com/compose/) builds it from `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. |
 | `DATABASE_NAME`     | [PostgreSQL](https://www.postgresql.org/docs/18/) database name used by [Docker Compose](https://docs.docker.com/compose/).                                                                                                                                         |
 | `DATABASE_USER`     | [PostgreSQL](https://www.postgresql.org/docs/18/) user used by [Docker Compose](https://docs.docker.com/compose/).                                                                                                                                                  |
@@ -175,11 +179,12 @@ Follow these steps to run the application locally:
    cp .env.template .env
    ```
 
-3. Update `.env` to match your [PostgreSQL](https://www.postgresql.org/docs/18/) connection and local server address.
+3. Update `.env` to match your [PostgreSQL](https://www.postgresql.org/docs/18/) connection, [Redis](https://redis.io/docs/latest/) client settings and local server address.
    For the default local setup:
 
    ```dotenv
    DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/tyk
+   CACHE_URL=redis://localhost:6379/0
    PUBLIC_BASE_URL=http://127.0.0.1:8000
    ```
 
@@ -252,7 +257,8 @@ To run only unit tests without a running database:
    uv run pytest -m "not integration"
    ```
 
-Valid application settings, including `DATABASE_URL`, are still required.
+Valid application settings, including `DATABASE_URL` and `CACHE_URL`, are
+still required.
 
 The [pre-commit](https://pre-commit.com/) test hook runs the full
 [pytest](https://docs.pytest.org/en/stable/) suite, so
