@@ -19,7 +19,9 @@ async def test_postgresql_repository_saves_and_returns_short_link(
     """Persist and retrieve a short link."""
     short_link: ShortLink = ShortLinkFactory.create()
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=postgresql_async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=postgresql_async_session
+        )
     )
 
     await short_link_repository.save(short_link=short_link)
@@ -39,7 +41,9 @@ async def test_postgresql_repository_returns_none_for_missing_link(
 ) -> None:
     """Return None when a short link does not exist."""
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=postgresql_async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=postgresql_async_session
+        )
     )
 
     stored_short_link: ShortLink | None = (
@@ -63,7 +67,9 @@ async def test_postgresql_repository_rejects_duplicate_short_code(
         original_url="https://example.org/path",
     )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=postgresql_async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=postgresql_async_session
+        )
     )
     await short_link_repository.save(short_link=first_short_link)
 
@@ -85,7 +91,9 @@ async def test_postgresql_repository_reraises_other_integrity_error(
         short_code="efgh",
     )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=postgresql_async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=postgresql_async_session
+        )
     )
     await short_link_repository.save(short_link=first_short_link)
 

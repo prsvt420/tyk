@@ -14,8 +14,8 @@ from src.infrastructure.database.models import ShortLinkModel
 class PostgreSQLShortLinkRepository(ShortLinkRepositoryInterface):
     """PostgreSQL short link repository."""
 
-    def __init__(self, async_session: AsyncSession) -> None:
-        self._async_session: AsyncSession = async_session
+    def __init__(self, database_async_session: AsyncSession) -> None:
+        self._database_async_session: AsyncSession = database_async_session
 
     async def save(self, short_link: ShortLink) -> None:
         """Save short link."""
@@ -24,9 +24,9 @@ class PostgreSQLShortLinkRepository(ShortLinkRepositoryInterface):
         )
 
         try:
-            async with self._async_session.begin():
-                self._async_session.add(instance=short_link_model)
-                await self._async_session.flush()
+            async with self._database_async_session.begin():
+                self._database_async_session.add(instance=short_link_model)
+                await self._database_async_session.flush()
         except IntegrityError as error:
             original_error: BaseException | None = error.orig
             database_error: BaseException | None = (
@@ -53,7 +53,7 @@ class PostgreSQLShortLinkRepository(ShortLinkRepositoryInterface):
         ).where(ShortLinkModel.short_code == short_code.value)
 
         short_link_models: ScalarResult[ShortLinkModel] = (
-            await self._async_session.scalars(statement=statement)
+            await self._database_async_session.scalars(statement=statement)
         )
         short_link_model: ShortLinkModel | None = (
             short_link_models.one_or_none()

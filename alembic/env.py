@@ -45,10 +45,10 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(sync_connection: Connection) -> None:
+def do_run_migrations(database_sync_connection: Connection) -> None:
     """Run migrations using a synchronous database connection."""
     context.configure(
-        connection=sync_connection,
+        connection=database_sync_connection,
         target_metadata=database_metadata,
     )
 
@@ -65,17 +65,19 @@ async def run_async_migrations() -> None:
         )
         or {}
     )
-    async_engine: AsyncEngine = async_engine_from_config(
+    database_async_engine: AsyncEngine = async_engine_from_config(
         configuration=sqlalchemy_config,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    async_connection: AsyncConnection = async_engine.connect()
-    async with async_connection:
-        await async_connection.run_sync(fn=do_run_migrations)
+    database_async_connection: AsyncConnection = (
+        database_async_engine.connect()
+    )
+    async with database_async_connection:
+        await database_async_connection.run_sync(fn=do_run_migrations)
 
-    await async_engine.dispose()
+    await database_async_engine.dispose()
 
 
 def run_migrations_online() -> None:

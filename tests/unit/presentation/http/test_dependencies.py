@@ -40,33 +40,37 @@ async def test_provide_async_session_manages_session_lifecycle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Yield and close a session from the configured factory."""
-    async_session: AsyncSession = cast(
+    database_async_session: AsyncSession = cast(
         AsyncSession,
         MagicMock(spec=AsyncSession),
     )
-    session_context_mock: MagicMock = MagicMock()
-    session_context_mock.__aenter__ = AsyncMock(return_value=async_session)
-    session_context_mock.__aexit__ = AsyncMock(return_value=None)
-    async_session_factory_mock: MagicMock = MagicMock(
-        return_value=session_context_mock
+    database_session_context_mock: MagicMock = MagicMock()
+    database_session_context_mock.__aenter__ = AsyncMock(
+        return_value=database_async_session
+    )
+    database_session_context_mock.__aexit__ = AsyncMock(return_value=None)
+    database_async_session_factory_mock: MagicMock = MagicMock(
+        return_value=database_session_context_mock
     )
     monkeypatch.setattr(
         target=DEPENDENCIES_MODULE,
-        name="async_session_factory",
-        value=async_session_factory_mock,
+        name="database_async_session_factory",
+        value=database_async_session_factory_mock,
     )
-    session_provider: AsyncGenerator[AsyncSession, None] = cast(
+    database_session_provider: AsyncGenerator[AsyncSession, None] = cast(
         AsyncGenerator[AsyncSession, None],
         provide_async_session(),
     )
 
-    provided_async_session: AsyncSession = await anext(session_provider)
-    await session_provider.aclose()
+    provided_database_async_session: AsyncSession = await anext(
+        database_session_provider
+    )
+    await database_session_provider.aclose()
 
-    assert provided_async_session is async_session
-    async_session_factory_mock.assert_called_once_with()
-    session_context_mock.__aenter__.assert_awaited_once_with()
-    session_context_mock.__aexit__.assert_awaited_once()
+    assert provided_database_async_session is database_async_session
+    database_async_session_factory_mock.assert_called_once_with()
+    database_session_context_mock.__aenter__.assert_awaited_once_with()
+    database_session_context_mock.__aexit__.assert_awaited_once()
 
 
 @pytest.mark.anyio
@@ -96,20 +100,24 @@ async def test_provide_app_readiness_returns_database_status(
 
 def test_provide_short_link_repository_returns_postgresql_repository() -> None:
     """Create a PostgreSQL repository with the provided session."""
-    async_session: AsyncSession = cast(
+    database_async_session: AsyncSession = cast(
         AsyncSession,
         MagicMock(spec=AsyncSession),
     )
 
     short_link_repository: ShortLinkRepositoryInterface = (
-        provide_short_link_repository(async_session=async_session)
+        provide_short_link_repository(
+            database_async_session=database_async_session
+        )
     )
 
     assert isinstance(
         short_link_repository,
         PostgreSQLShortLinkRepository,
     )
-    assert short_link_repository._async_session is async_session
+    assert (
+        short_link_repository._database_async_session is database_async_session
+    )
 
 
 def test_provide_short_code_generator_returns_singleton() -> None:

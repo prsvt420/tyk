@@ -23,14 +23,14 @@ async def test_lifespan_logs_and_disposes_database_engine(
         version="1.2.3",
     )
     dispose_mock: AsyncMock = AsyncMock()
-    async_engine_mock: MagicMock = MagicMock(spec=AsyncEngine)
-    async_engine_mock.dispose = dispose_mock
+    database_async_engine_mock: MagicMock = MagicMock(spec=AsyncEngine)
+    database_async_engine_mock.dispose = dispose_mock
     monotonic_mock: MagicMock = MagicMock(side_effect=[1.0, 3.3456])
     logger_mock: MagicMock = MagicMock(spec=Logger)
     monkeypatch.setattr(
         target=MAIN_MODULE,
-        name="async_engine",
-        value=async_engine_mock,
+        name="database_async_engine",
+        value=database_async_engine_mock,
     )
     monkeypatch.setattr(
         target=MAIN_MODULE,

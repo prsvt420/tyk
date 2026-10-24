@@ -20,10 +20,10 @@ def _create_async_session_mock(
     *, flush_error: IntegrityError | None = None
 ) -> MagicMock:
     """Create an asynchronous session mock."""
-    async_session_mock: MagicMock = MagicMock(spec=AsyncSession)
-    async_session_mock.flush = AsyncMock(side_effect=flush_error)
+    database_async_session_mock: MagicMock = MagicMock(spec=AsyncSession)
+    database_async_session_mock.flush = AsyncMock(side_effect=flush_error)
 
-    return async_session_mock
+    return database_async_session_mock
 
 
 def _create_integrity_error(*, constraint_name: str) -> IntegrityError:
@@ -43,25 +43,29 @@ def _create_integrity_error(*, constraint_name: str) -> IntegrityError:
 @pytest.mark.anyio
 async def test_postgresql_repository_saves_short_link() -> None:
     """Map and add a short link to an asynchronous session."""
-    async_session_mock: MagicMock = _create_async_session_mock()
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session_mock: MagicMock = _create_async_session_mock()
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link: ShortLink = ShortLinkFactory.create()
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     await short_link_repository.save(short_link=short_link)
 
-    short_link_model: ShortLinkModel = async_session_mock.add.call_args.kwargs[
-        "instance"
-    ]
+    short_link_model: ShortLinkModel = (
+        database_async_session_mock.add.call_args.kwargs["instance"]
+    )
 
     assert short_link_model.id == short_link.id
     assert short_link_model.original_url == short_link.original_url.value
     assert short_link_model.short_code == short_link.short_code.value
     assert short_link_model.created_at == short_link.created_at
     assert short_link_model.expires_at == short_link.expires_at
-    async_session_mock.flush.assert_awaited_once_with()
+    database_async_session_mock.flush.assert_awaited_once_with()
 
 
 @pytest.mark.anyio
@@ -70,12 +74,16 @@ async def test_postgresql_repository_translates_short_code_conflict() -> None:
     integrity_error: IntegrityError = _create_integrity_error(
         constraint_name="uq_short_links_short_code"
     )
-    async_session_mock: MagicMock = _create_async_session_mock(
+    database_async_session_mock: MagicMock = _create_async_session_mock(
         flush_error=integrity_error
     )
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     with pytest.raises(
@@ -92,12 +100,16 @@ async def test_postgresql_repository_reraises_other_constraint_error() -> None:
     integrity_error: IntegrityError = _create_integrity_error(
         constraint_name="pk_short_links"
     )
-    async_session_mock: MagicMock = _create_async_session_mock(
+    database_async_session_mock: MagicMock = _create_async_session_mock(
         flush_error=integrity_error
     )
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     with pytest.raises(
@@ -116,12 +128,16 @@ async def test_postgresql_repository_reraises_error_without_origin() -> None:
         params=None,
         orig=cast(BaseException, None),
     )
-    async_session_mock: MagicMock = MagicMock(spec=AsyncSession)
-    async_session_mock.flush = AsyncMock(side_effect=integrity_error)
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session_mock: MagicMock = MagicMock(spec=AsyncSession)
+    database_async_session_mock.flush = AsyncMock(side_effect=integrity_error)
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link: ShortLink = ShortLinkFactory.create()
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     with pytest.raises(
@@ -141,11 +157,17 @@ async def test_postgresql_repository_returns_short_link() -> None:
     )
     short_link_models_mock: MagicMock = MagicMock(spec=ScalarResult)
     short_link_models_mock.one_or_none.return_value = short_link_model
-    async_session_mock: MagicMock = _create_async_session_mock()
-    async_session_mock.scalars = AsyncMock(return_value=short_link_models_mock)
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session_mock: MagicMock = _create_async_session_mock()
+    database_async_session_mock.scalars = AsyncMock(
+        return_value=short_link_models_mock
+    )
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     stored_short_link: ShortLink | None = (
@@ -155,7 +177,7 @@ async def test_postgresql_repository_returns_short_link() -> None:
     )
 
     assert stored_short_link == short_link
-    async_session_mock.scalars.assert_awaited_once()
+    database_async_session_mock.scalars.assert_awaited_once()
 
 
 @pytest.mark.anyio
@@ -163,11 +185,17 @@ async def test_postgresql_repository_returns_none_for_missing_link() -> None:
     """Return None when the database does not contain a short link."""
     short_link_models_mock: MagicMock = MagicMock(spec=ScalarResult)
     short_link_models_mock.one_or_none.return_value = None
-    async_session_mock: MagicMock = _create_async_session_mock()
-    async_session_mock.scalars = AsyncMock(return_value=short_link_models_mock)
-    async_session: AsyncSession = cast(AsyncSession, async_session_mock)
+    database_async_session_mock: MagicMock = _create_async_session_mock()
+    database_async_session_mock.scalars = AsyncMock(
+        return_value=short_link_models_mock
+    )
+    database_async_session: AsyncSession = cast(
+        AsyncSession, database_async_session_mock
+    )
     short_link_repository: PostgreSQLShortLinkRepository = (
-        PostgreSQLShortLinkRepository(async_session=async_session)
+        PostgreSQLShortLinkRepository(
+            database_async_session=database_async_session
+        )
     )
 
     stored_short_link: ShortLink | None = (

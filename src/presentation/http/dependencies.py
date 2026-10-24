@@ -13,8 +13,8 @@ from src.application.use_cases import (
     GetShortLinkByShortCodeUseCase,
 )
 from src.infrastructure.database import check_database_readiness
-from src.infrastructure.database.async_session_factory import (
-    async_session_factory,
+from src.infrastructure.database.database_async_session_factory import (
+    database_async_session_factory,
 )
 from src.infrastructure.generators import RandomShortCodeGenerator
 from src.infrastructure.repositories import PostgreSQLShortLinkRepository
@@ -24,8 +24,8 @@ _short_code_generator: ShortCodeGeneratorInterface = RandomShortCodeGenerator()
 
 async def provide_async_session() -> AsyncIterator[AsyncSession]:
     """Provide async session."""
-    async with async_session_factory() as async_session:
-        yield async_session
+    async with database_async_session_factory() as database_async_session:
+        yield database_async_session
 
 
 async def provide_app_readiness() -> bool:
@@ -34,13 +34,15 @@ async def provide_app_readiness() -> bool:
 
 
 def provide_short_link_repository(
-    async_session: Annotated[
+    database_async_session: Annotated[
         AsyncSession,
         Depends(dependency=provide_async_session),
     ],
 ) -> ShortLinkRepositoryInterface:
     """Provide short link repository."""
-    return PostgreSQLShortLinkRepository(async_session=async_session)
+    return PostgreSQLShortLinkRepository(
+        database_async_session=database_async_session
+    )
 
 
 def provide_short_code_generator() -> ShortCodeGeneratorInterface:
