@@ -1,7 +1,8 @@
 from collections.abc import AsyncGenerator
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
+from redis.asyncio import Redis as AsyncRedis
 from sqlalchemy import text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.ext.asyncio import (
@@ -12,9 +13,44 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.config import app_settings
+from src.domain.entities import ShortLink
 from src.infrastructure.database.models import ShortLinkModel
+from tests.factories import ShortLinkFactory
 
 TEST_DATABASE_NAME_PREFIX: str = "tyk_test_"
+
+
+@pytest.fixture
+def redis_short_link() -> ShortLink:
+    """Create a short link with a unique cache key for each test."""
+    short_link_id: UUID = uuid4()
+    return ShortLinkFactory.create(
+        short_link_id=short_link_id,
+        short_code=short_link_id.hex,
+    )
+
+
+@pytest.fixture
+async def redis_async_client(
+    redis_short_link: ShortLink,
+) -> AsyncGenerator[AsyncRedis]:
+    """Provide a Redis client and remove only the test's cache key."""
+    cache_async_client: AsyncRedis = AsyncRedis.from_url(
+        url=app_settings.cache_url,
+        decode_responses=True,
+        socket_connect_timeout=app_settings.cache_connect_timeout_seconds,
+        socket_timeout=app_settings.cache_socket_timeout_seconds,
+    )
+
+    try:
+        yield cache_async_client
+    finally:
+        try:
+            await cache_async_client.delete(
+                f"short_link:{redis_short_link.short_code.value}"
+            )
+        finally:
+            await cache_async_client.aclose()
 
 
 @pytest.fixture(scope="session")

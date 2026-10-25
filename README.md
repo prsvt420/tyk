@@ -253,8 +253,13 @@ before running tests:
 
 By default, [pytest](https://docs.pytest.org/en/stable/) runs all unit and
 integration tests with coverage.
-Integration tests require a running [PostgreSQL](https://www.postgresql.org/docs/18/) instance configured through
-`DATABASE_URL`. The database user must be able to connect to the `postgres` database and create and drop databases because each test session uses an isolated temporary database.
+Integration tests require reachable
+[PostgreSQL](https://www.postgresql.org/docs/18/) and
+[Redis](https://redis.io/docs/latest/) instances configured through
+`DATABASE_URL` and `CACHE_URL`. The database user must be able to connect to
+the `postgres` database and create and drop databases because each test
+session uses an isolated temporary database. Redis tests use unique
+`short_link:*` keys and delete only their own keys after each test.
 
 Run all unit and integration tests with:
 
@@ -262,7 +267,7 @@ Run all unit and integration tests with:
    uv run pytest
    ```
 
-To run only unit tests without a running database:
+To run only unit tests without running database and cache servers:
 
    ```bash
    uv run pytest -m "not integration"
@@ -275,7 +280,8 @@ mocks, so they do not require a running cache server.
 
 The [pre-commit](https://pre-commit.com/) test hook runs the full
 [pytest](https://docs.pytest.org/en/stable/) suite, so
-[PostgreSQL](https://www.postgresql.org/docs/18/) must also be available
+[PostgreSQL](https://www.postgresql.org/docs/18/) and
+[Redis](https://redis.io/docs/latest/) must also be available
 when committing.
 
 The project enforces 100% test coverage, including branch coverage.

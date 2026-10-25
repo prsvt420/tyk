@@ -33,10 +33,14 @@ uv sync --locked
 Tests require valid application settings, including `DATABASE_URL` and
 `CACHE_URL`. Unit tests replace [Redis](https://redis.io/docs/latest/)
 operations with mocks.
-Integration tests also require a reachable
-[PostgreSQL](https://www.postgresql.org/docs/18/) instance. The database user
+Integration tests also require reachable
+[PostgreSQL](https://www.postgresql.org/docs/18/) and
+[Redis](https://redis.io/docs/latest/) instances configured through
+`DATABASE_URL` and `CACHE_URL`. The database user
 must be able to connect to the `postgres` database and create and drop
 databases; the tests create an isolated temporary database for each session.
+Redis tests use unique `short_link:*` keys and delete only their own keys
+after each test.
 See [Testing](README.md#testing) for details.
 
 ## Git Hooks
@@ -54,7 +58,8 @@ Both are configured in `.pre-commit-config.yaml`.
 
 The test hook always runs the full [pytest](https://docs.pytest.org/en/stable/)
 suite, including integration tests, so
-[PostgreSQL](https://www.postgresql.org/docs/18/) must also be available
+[PostgreSQL](https://www.postgresql.org/docs/18/) and
+[Redis](https://redis.io/docs/latest/) must also be available
 when committing documentation changes.
 If a formatter changes files, review the changes and stage them again
 before retrying the commit.
@@ -89,7 +94,7 @@ suite. To run it separately:
 uv run pytest
 ```
 
-For a unit-test-only run without a running database:
+For a unit-test-only run without running database and cache servers:
 
 ```bash
 uv run pytest -m "not integration"
