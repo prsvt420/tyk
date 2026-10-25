@@ -5,6 +5,7 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from redis.asyncio import Redis as AsyncRedis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.interfaces import (
@@ -16,11 +17,15 @@ from src.application.use_cases import (
     GetShortLinkByShortCodeUseCase,
 )
 from src.infrastructure.generators import RandomShortCodeGenerator
-from src.infrastructure.repositories import PostgreSQLShortLinkRepository
+from src.infrastructure.repositories import (
+    PostgreSQLShortLinkRepository,
+    RedisCachedShortLinkRepository,
+)
 from src.presentation.http.dependencies import (
     provide_app_readiness,
-    provide_async_session,
+    provide_cache_async_client,
     provide_create_short_link_use_case,
+    provide_database_async_session,
     provide_get_short_link_by_short_code_use_case,
     provide_short_code_generator,
     provide_short_link_repository,
@@ -36,7 +41,7 @@ DEPENDENCIES_MODULE: ModuleType = import_module(
 
 
 @pytest.mark.anyio
-async def test_provide_async_session_manages_session_lifecycle(
+async def test_provide_database_async_session_manages_lifecycle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Yield and close a session from the configured factory."""
@@ -59,7 +64,7 @@ async def test_provide_async_session_manages_session_lifecycle(
     )
     database_session_provider: AsyncGenerator[AsyncSession, None] = cast(
         AsyncGenerator[AsyncSession, None],
-        provide_async_session(),
+        provide_database_async_session(),
     )
 
     provided_database_async_session: AsyncSession = await anext(
@@ -71,6 +76,28 @@ async def test_provide_async_session_manages_session_lifecycle(
     database_async_session_factory_mock.assert_called_once_with()
     database_session_context_mock.__aenter__.assert_awaited_once_with()
     database_session_context_mock.__aexit__.assert_awaited_once()
+
+
+@pytest.mark.anyio
+async def test_provide_cache_async_client_returns_shared_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Return the configured cache client across provider calls."""
+    cache_async_client: AsyncRedis = cast(
+        AsyncRedis,
+        MagicMock(spec=AsyncRedis),
+    )
+    monkeypatch.setattr(
+        target=DEPENDENCIES_MODULE,
+        name="_cache_async_client",
+        value=cache_async_client,
+    )
+
+    first_cache_async_client: AsyncRedis = await provide_cache_async_client()
+    second_cache_async_client: AsyncRedis = await provide_cache_async_client()
+
+    assert first_cache_async_client is cache_async_client
+    assert second_cache_async_client is cache_async_client
 
 
 @pytest.mark.anyio
@@ -98,25 +125,39 @@ async def test_provide_app_readiness_returns_database_status(
     check_database_readiness_mock.assert_awaited_once_with()
 
 
-def test_provide_short_link_repository_returns_postgresql_repository() -> None:
-    """Create a PostgreSQL repository with the provided session."""
+def test_provide_short_link_repository_wraps_postgresql() -> None:
+    """Wrap PostgreSQL with the provided session and cache client."""
     database_async_session: AsyncSession = cast(
         AsyncSession,
         MagicMock(spec=AsyncSession),
     )
+    cache_async_client: AsyncRedis = cast(
+        AsyncRedis,
+        MagicMock(spec=AsyncRedis),
+    )
 
     short_link_repository: ShortLinkRepositoryInterface = (
         provide_short_link_repository(
-            database_async_session=database_async_session
+            database_async_session=database_async_session,
+            cache_async_client=cache_async_client,
         )
     )
 
     assert isinstance(
         short_link_repository,
+        RedisCachedShortLinkRepository,
+    )
+    assert short_link_repository._cache_async_client is cache_async_client
+    database_short_link_repository: ShortLinkRepositoryInterface = (
+        short_link_repository._short_link_repository
+    )
+    assert isinstance(
+        database_short_link_repository,
         PostgreSQLShortLinkRepository,
     )
     assert (
-        short_link_repository._database_async_session is database_async_session
+        database_short_link_repository._database_async_session
+        is database_async_session
     )
 
 

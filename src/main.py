@@ -7,9 +7,8 @@ from fastapi import FastAPI
 
 from src.config import app_settings, configure_logging
 from src.domain.exceptions import DomainError
-from src.infrastructure.database.database_async_engine import (
-    database_async_engine,
-)
+from src.infrastructure.cache import cache_async_client
+from src.infrastructure.database import database_async_engine
 from src.presentation.http import domain_error_handler
 from src.presentation.http.api.v1 import api_v1_router
 from src.presentation.http.middlewares import (
@@ -41,6 +40,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
     finally:
         await database_async_engine.dispose()
+        await cache_async_client.aclose()
+
         logger.info(
             msg="App stopped.",
             extra={
