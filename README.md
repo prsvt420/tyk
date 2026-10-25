@@ -65,7 +65,7 @@ starting point and adjust the values for your environment.
 | `APP_DESCRIPTION`   | Application description shown in the API documentation.                                                                                                                                                                                                             |
 | `LOG_LEVEL`         | Minimum log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`.                                                                                                                                                                                              |
 | `PUBLIC_BASE_URL`   | Public base URL for generated short links, e.g. `https://tyk.example`; the app appends `/r/{short_code}`.                                                                                                                                                           |
-| `CACHE_URL`         | [Redis](https://redis.io/docs/latest/) connection URL, e.g. `redis://localhost:6379/0`.                                                                                                                                                                             |
+| `CACHE_URL`         | [Redis](https://redis.io/docs/latest/) connection URL for short link caching, e.g. `redis://localhost:6379/0`. The server must be reachable from the application.                                                                                                  |
 | `DATABASE_URL`      | [PostgreSQL](https://www.postgresql.org/docs/18/) connection URL for the app and [Alembic](https://alembic.sqlalchemy.org/en/latest/); [Docker Compose](https://docs.docker.com/compose/) builds it from `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD`. |
 | `DATABASE_NAME`     | [PostgreSQL](https://www.postgresql.org/docs/18/) database name used by [Docker Compose](https://docs.docker.com/compose/).                                                                                                                                         |
 | `DATABASE_USER`     | [PostgreSQL](https://www.postgresql.org/docs/18/) user used by [Docker Compose](https://docs.docker.com/compose/).                                                                                                                                                  |
@@ -73,7 +73,8 @@ starting point and adjust the values for your environment.
 
 ## Quick Start
 
-Prerequisites: [Docker](https://docs.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
+Prerequisites: [Docker](https://docs.docker.com/) and
+[Docker Compose](https://docs.docker.com/compose/).
 
 1. Clone the repository:
 
@@ -158,8 +159,12 @@ Open the short link in a browser, or follow the redirect with [curl](https://cur
 
 ## Local Development
 
-Prerequisites: [Git](https://git-scm.com/), [Python 3.13+](https://docs.python.org/3.13/), [uv](https://docs.astral.sh/uv/), and a running [PostgreSQL](https://www.postgresql.org/docs/18/) instance with an existing
-database and user.
+Prerequisites: [Git](https://git-scm.com/),
+[Python 3.13+](https://docs.python.org/3.13/),
+[uv](https://docs.astral.sh/uv/), a running
+[PostgreSQL](https://www.postgresql.org/docs/18/) instance with an existing
+database and user, and a running [Redis](https://redis.io/docs/latest/)
+instance. Both services must be accessible from your host.
 
 The current [Compose](https://docs.docker.com/compose/) configuration does not publish the [PostgreSQL](https://www.postgresql.org/docs/18/) port to the
 host. For this workflow, use a [PostgreSQL](https://www.postgresql.org/docs/18/) instance accessible from your host.
@@ -179,7 +184,7 @@ Follow these steps to run the application locally:
    cp .env.template .env
    ```
 
-3. Update `.env` to match your [PostgreSQL](https://www.postgresql.org/docs/18/) connection, [Redis](https://redis.io/docs/latest/) client settings and local server address.
+3. Update `.env` to match your [PostgreSQL](https://www.postgresql.org/docs/18/) connection, [Redis](https://redis.io/docs/latest/) connection and local server address.
    For the default local setup:
 
    ```dotenv
@@ -259,6 +264,8 @@ To run only unit tests without a running database:
 
 Valid application settings, including `DATABASE_URL` and `CACHE_URL`, are
 still required.
+Unit tests replace [Redis](https://redis.io/docs/latest/) operations with
+mocks, so they do not require a running cache server.
 
 The [pre-commit](https://pre-commit.com/) test hook runs the full
 [pytest](https://docs.pytest.org/en/stable/) suite, so
@@ -271,8 +278,9 @@ The project enforces 100% test coverage, including branch coverage.
 
 [Locust](https://docs.locust.io/en/stable/) scenarios are defined in
 `tests/load/locustfile.py`. They send requests to a running application and
-create records in its configured database. Use a development instance for
-these runs. [pytest](https://docs.pytest.org/en/stable/),
+create records in its configured database. Redirect scenarios also read
+and populate the configured [Redis](https://redis.io/docs/latest/) cache.
+Use a development instance for these runs. [pytest](https://docs.pytest.org/en/stable/),
 [pre-commit](https://pre-commit.com/) and the CI workflow do not run load tests.
 
 Prepare the environment using [Local Development](#local-development),

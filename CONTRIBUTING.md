@@ -30,7 +30,9 @@ Install application and development dependencies from the lock file with
 uv sync --locked
 ```
 
-Tests require valid application settings, including `DATABASE_URL`.
+Tests require valid application settings, including `DATABASE_URL` and
+`CACHE_URL`. Unit tests replace [Redis](https://redis.io/docs/latest/)
+operations with mocks.
 Integration tests also require a reachable
 [PostgreSQL](https://www.postgresql.org/docs/18/) instance. The database user
 must be able to connect to the `postgres` database and create and drop
@@ -107,7 +109,7 @@ above and the CI workflow do not validate commit messages.
 ## Load Testing
 
 Load tests use [Locust](https://docs.locust.io/en/stable/) and run separately
-against a running application and its configured database.
+against a running application and its configured database and cache.
 [pytest](https://docs.pytest.org/en/stable/),
 [pre-commit](https://pre-commit.com/) and the CI workflow do not execute
 these scenarios.

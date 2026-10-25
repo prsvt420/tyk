@@ -33,6 +33,12 @@ For example, `provide_create_short_link_use_case()` passes a repository and
 a short code generator into `CreateShortLinkUseCase`, whose parameters are
 typed as `ShortLinkRepositoryInterface` and `ShortCodeGeneratorInterface`.
 
+At runtime, `provide_short_link_repository()` creates a
+`PostgreSQLShortLinkRepository` for the request and wraps it in
+`RedisCachedShortLinkRepository`. The wrapper implements the same repository
+interface and receives the shared asynchronous Redis client. Use cases
+access caching through the existing repository contract.
+
 The choice and construction of infrastructure objects stay outside use case
 logic. Another implementation or a test double that satisfies the same
 interface can be supplied without changing the use case.
@@ -57,18 +63,19 @@ The main directories are organized by responsibility:
 
 ## Asynchronous Execution
 
-The application uses asynchronous request handling and database I/O.
+The application uses asynchronous request handling, database I/O and cache I/O.
 Route handlers await application use cases, which await repository
 operations through asynchronous interfaces.
 
 The database adapter uses
 [SQLAlchemy](https://docs.sqlalchemy.org/en/20/)'s asynchronous engine and
 sessions with the [asyncpg](https://magicstack.github.io/asyncpg/current/)
-driver.
+driver. Cache operations use the asynchronous client from
+[redis-py](https://redis.io/docs/latest/develop/clients/redis-py/).
 
 When an awaited I/O operation suspends a request task, the event loop can
 run other ready tasks. This allows concurrent request handling while
-database operations are waiting for I/O.
+database and cache operations are waiting for I/O.
 
 Validation, data mapping, short code generation and logging remain
 synchronous. Declaring a function with `async def` does not automatically
@@ -106,9 +113,10 @@ rejects it.
    into `CreateShortLinkDTO` and calls `CreateShortLinkUseCase`.
 3. The use case validates domain values, obtains a candidate code from the
    generator and creates a `ShortLink` entity.
-4. The repository maps the entity to a storage model and saves it in a
-   transaction. After a successful commit, the use case returns the link
-   as `ShortLinkDTO`.
+4. The caching repository delegates saving to the PostgreSQL repository,
+   which maps the entity to a storage model and saves it in a transaction.
+   After a successful commit, the use case returns the link as
+   `ShortLinkDTO`.
 5. The route handler builds `short_link_url` from `PUBLIC_BASE_URL` and
    `/r/{short_code}`. It returns `201 Created` with the link data in JSON
    and the same public URL in the `Location` header.
@@ -123,8 +131,9 @@ Collision retries are described in
 1. The client sends `GET /r/{short_code}`. The route handler passes the
    code to `GetShortLinkByShortCodeUseCase`.
 2. The use case validates the code as `ShortCode` and asks the repository
-   for the link. The repository looks up the stored record and maps it
-   back to a domain entity.
+   for the link. The repository first checks Redis. A cache hit is mapped
+   to a domain entity; a miss loads the link from PostgreSQL and caches a
+   found entity.
 3. The use case checks that the link exists and has not expired, then
    returns it as `ShortLinkDTO`.
 4. The route handler returns `307 Temporary Redirect` with `original_url`
@@ -154,6 +163,26 @@ The domain entity normalizes timestamps to UTC, and the database uses
 timezone-aware timestamp columns. A database constraint requires a non-null
 `expires_at` to be later than `created_at`.
 
+### Short Link Caching
+
+`RedisCachedShortLinkRepository` adds caching around the persistent
+repository using [Redis](https://redis.io/docs/latest/). It reads keys in the
+`short_link:{short_code}` format. A found key supplies the link directly;
+when the key is absent, the wrapper queries the persistent repository and
+caches the returned entity. An absent link returns `None` without a cache
+entry. Saving delegates to the persistent repository; cache entries are
+populated during reads.
+
+Each cache entry contains the complete entity as JSON and has a fixed
+time to live (TTL) of 86,400 seconds, or 24 hours, from its cache write.
+Cache hits do not renew the TTL. This duration is independent of
+`expires_at`: the use case checks link expiration after either lookup
+path. Expiration of a cache key does not delete the stored database record.
+
+Redis command failures and errors while rebuilding cached entities
+propagate through the existing exception handling. A cache miss is the
+condition that triggers a lookup in the persistent repository.
+
 ### Data Representations
 
 `ShortLink` is the domain entity and enforces business rules through its
@@ -161,6 +190,12 @@ own validation and value objects. `ShortLinkModel` defines the
 [SQLAlchemy](https://docs.sqlalchemy.org/en/20/) mapping to the database.
 `ShortLinkModelMapper` converts between these representations, rebuilding
 the domain entity and its value objects when loading a record.
+
+`ShortLinkCacheMapper` converts a domain entity to a JSON string and back.
+The cached representation stores the UUID, URL, code and timezone-aware
+timestamps as strings, with `null` for an omitted expiration. Loading it
+rebuilds the UUID, datetimes and value objects through the domain entity's
+normal validation.
 
 The repository accepts and returns domain entities. Application use cases
 convert results to `ShortLinkDTO` through `ShortLinkMapper`. Request and
@@ -175,13 +210,18 @@ and repository instance. Sessions are created from the shared session
 factory and closed when the dependency context exits. Connections are
 acquired from the engine's pool on demand and released during cleanup.
 
-Each `save()` call owns a transaction: it adds and flushes the storage model,
-then commits on successful exit from the transaction block or rolls back
-if the block fails. The save transaction completes before the repository
-returns to the use case.
+The Redis client is shared across requests. A cache hit returns before the
+PostgreSQL repository is queried, so the request's session does not execute
+a database query on that path.
 
-`get_by_short_code()` queries by code and returns a domain entity or `None`.
-Session cleanup also ends any transaction left open by a read.
+Each PostgreSQL `save()` call owns a transaction: it adds and flushes the
+storage model, then commits on successful exit from the transaction block
+or rolls back if the block fails. The save transaction completes before
+the repository returns to the use case.
+
+The PostgreSQL repository's `get_by_short_code()` queries by code and returns
+a domain entity or `None`. Session cleanup also ends any transaction left
+open by a database read.
 Conflict handling is described in
 [Collisions and Concurrent Requests](#collisions-and-concurrent-requests).
 
@@ -273,19 +313,19 @@ The server loads the exported `app` from `src/main.py`.
 The application lifecycle consists of the following stages:
 
 1. Module initialization. Settings are loaded and validated, and the
-   database engine, session factory and short code generator are created
-   when their modules are first imported. These objects are shared within
-   the process and reused across calls to `create_app()`. Database
-   connections are acquired on demand.
+   database engine, session factory, Redis client and short code generator
+   are created when their modules are first imported. These objects are
+   shared within the process and reused across calls to `create_app()`.
+   Database and Redis connections are acquired from their pools on demand.
 2. Application creation. `create_app()` configures logging, creates the
    [FastAPI](https://fastapi.tiangolo.com/) application with its settings and
    `lifespan` handler, and registers routes, middleware and the domain error
    handler. The returned application is exported as `app`.
 3. Startup. The server enters `lifespan`, which records the start time
    and logs the `app_started` event.
-4. Shutdown. The `finally` block in `lifespan` disposes the shared
-   database engine's connection pool, then logs `app_stopped` with the
-   application uptime in `uptime_seconds`.
+4. Shutdown. The `finally` block in `lifespan` sequentially disposes the
+   shared database engine's connection pool and closes the Redis client,
+   then logs `app_stopped` with the application uptime in `uptime_seconds`.
 
 ## Logging
 
