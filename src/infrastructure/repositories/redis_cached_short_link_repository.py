@@ -1,9 +1,14 @@
+from logging import Logger, getLogger
+
 from redis.asyncio import Redis as AsyncRedis
+from redis.exceptions import RedisError
 
 from src.application.interfaces import ShortLinkRepositoryInterface
 from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
 from src.infrastructure.cache.cache_mappers import ShortLinkCacheMapper
+
+logger: Logger = getLogger(name=__name__)
 
 
 class RedisCachedShortLinkRepository(ShortLinkRepositoryInterface):
@@ -28,9 +33,23 @@ class RedisCachedShortLinkRepository(ShortLinkRepositoryInterface):
     ) -> ShortLink | None:
         """Return short link by short code."""
         cache_key: str = f"short_link:{short_code.value}"
-        short_link_cache: bytes | str | None = (
-            await self._cache_async_client.get(name=cache_key)
-        )
+
+        try:
+            short_link_cache: bytes | str | None = (
+                await self._cache_async_client.get(name=cache_key)
+            )
+        except RedisError:
+            logger.warning(
+                msg="Short link cache read failed.",
+                exc_info=True,
+                extra={
+                    "event": "short_link_cache_read_failed",
+                    "short_code": short_code.value,
+                },
+            )
+            return await self._short_link_repository.get_by_short_code(
+                short_code=short_code
+            )
 
         if isinstance(short_link_cache, str):
             return ShortLinkCacheMapper().to_entity(
@@ -44,11 +63,23 @@ class RedisCachedShortLinkRepository(ShortLinkRepositoryInterface):
         )
 
         if short_link:
-            await self._cache_async_client.set(
-                name=cache_key,
-                value=ShortLinkCacheMapper().to_cache(short_link=short_link),
-                ex=86400,
-            )
+            try:
+                await self._cache_async_client.set(
+                    name=cache_key,
+                    value=ShortLinkCacheMapper().to_cache(
+                        short_link=short_link
+                    ),
+                    ex=86400,
+                )
+            except RedisError:
+                logger.warning(
+                    msg="Short link cache write failed.",
+                    exc_info=True,
+                    extra={
+                        "event": "short_link_cache_write_failed",
+                        "short_code": short_code.value,
+                    },
+                )
 
             return short_link
 

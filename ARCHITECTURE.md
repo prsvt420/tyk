@@ -179,9 +179,13 @@ Cache hits do not renew the TTL. This duration is independent of
 `expires_at`: the use case checks link expiration after either lookup
 path. Expiration of a cache key does not delete the stored database record.
 
-Redis command failures and errors while rebuilding cached entities
-propagate through the existing exception handling. A cache miss is the
-condition that triggers a lookup in the persistent repository.
+If a Redis read raises `RedisError`, the wrapper logs a warning and returns
+the result from the persistent repository without another cache operation
+for that request. If writing a cache entry raises `RedisError`, it logs a
+warning and returns the entity already loaded from the persistent repository.
+Warnings include the short code, a read or write failure event and the
+exception traceback. Errors from the persistent repository and errors while
+rebuilding cached entities propagate through the existing exception handling.
 
 ### Data Representations
 

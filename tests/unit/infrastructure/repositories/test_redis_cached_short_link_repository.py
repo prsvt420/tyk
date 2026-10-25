@@ -1,10 +1,14 @@
 import json
 from datetime import datetime, timezone
+from logging import WARNING, LogRecord
 from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from redis.asyncio import Redis as AsyncRedis
+from redis.exceptions import ConnectionError as RedisConnectionError
+from redis.exceptions import RedisError
+from redis.exceptions import TimeoutError as RedisTimeoutError
 
 from src.application.exceptions import ShortCodeAlreadyExistsError
 from src.application.interfaces import ShortLinkRepositoryInterface
@@ -12,6 +16,34 @@ from src.domain.entities import ShortLink
 from src.domain.value_objects import ShortCode
 from src.infrastructure.repositories import RedisCachedShortLinkRepository
 from tests.factories import ShortLinkFactory
+
+LOGGER_NAME: str = (
+    "src.infrastructure.repositories.redis_cached_short_link_repository"
+)
+
+
+def _assert_cache_warning(
+    *,
+    caplog: pytest.LogCaptureFixture,
+    message: str,
+    event: str,
+    short_code: ShortCode,
+    error: RedisError,
+) -> None:
+    """Check a structured warning with the original cache failure."""
+    records: list[LogRecord] = [
+        record for record in caplog.records if record.name == LOGGER_NAME
+    ]
+
+    assert len(records) == 1
+    record: LogRecord = records[0]
+    assert record.name == LOGGER_NAME
+    assert record.levelno == WARNING
+    assert record.getMessage() == message
+    assert record.__dict__["event"] == event
+    assert record.__dict__["short_code"] == short_code.value
+    assert record.exc_info is not None
+    assert record.exc_info[1] is error
 
 
 def _create_cached_repository(
@@ -64,6 +96,142 @@ async def test_redis_cached_repository_delegates_save() -> None:
     short_link_repository_mock.get_by_short_code.assert_not_called()
     cache_async_client_mock.get.assert_not_called()
     cache_async_client_mock.set.assert_not_called()
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(argnames="link_exists", argvalues=[True, False])
+@pytest.mark.parametrize(
+    argnames="cache_error_type",
+    argvalues=[RedisConnectionError, RedisTimeoutError],
+)
+async def test_redis_cached_repository_falls_back_after_read_error(
+    link_exists: bool,
+    cache_error_type: type[RedisError],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Log a cache read failure and use the repository without cache writes."""
+    short_code: ShortCode = ShortCode(value="aB12")
+    short_link: ShortLink | None = (
+        ShortLinkFactory.create(short_code=short_code.value)
+        if link_exists
+        else None
+    )
+    (
+        short_link_repository,
+        short_link_repository_mock,
+        cache_async_client_mock,
+    ) = _create_cached_repository(short_link=short_link)
+    cache_error: RedisError = cache_error_type("Cache read failed.")
+    cache_async_client_mock.get.side_effect = cache_error
+
+    with caplog.at_level(level=WARNING, logger=LOGGER_NAME):
+        stored_short_link: ShortLink | None = (
+            await short_link_repository.get_by_short_code(
+                short_code=short_code
+            )
+        )
+
+    assert stored_short_link is short_link
+    cache_async_client_mock.get.assert_awaited_once_with(
+        name="short_link:aB12"
+    )
+    short_link_repository_mock.get_by_short_code.assert_awaited_once_with(
+        short_code=short_code
+    )
+    cache_async_client_mock.set.assert_not_called()
+    short_link_repository_mock.save.assert_not_called()
+    _assert_cache_warning(
+        caplog=caplog,
+        message="Short link cache read failed.",
+        event="short_link_cache_read_failed",
+        short_code=short_code,
+        error=cache_error,
+    )
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    argnames="cache_error_type",
+    argvalues=[RedisConnectionError, RedisTimeoutError],
+)
+async def test_redis_cached_repository_logs_write_error(
+    cache_error_type: type[RedisError],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Log a failed cache write and return the link from the repository."""
+    short_link: ShortLink = ShortLinkFactory.create(short_code="aB12")
+    (
+        short_link_repository,
+        short_link_repository_mock,
+        cache_async_client_mock,
+    ) = _create_cached_repository(short_link=short_link)
+    cache_error: RedisError = cache_error_type("Cache write failed.")
+    cache_async_client_mock.set.side_effect = cache_error
+
+    with caplog.at_level(level=WARNING, logger=LOGGER_NAME):
+        stored_short_link: ShortLink | None = (
+            await short_link_repository.get_by_short_code(
+                short_code=short_link.short_code
+            )
+        )
+
+    assert stored_short_link is short_link
+    cache_async_client_mock.get.assert_awaited_once_with(
+        name="short_link:aB12"
+    )
+    short_link_repository_mock.get_by_short_code.assert_awaited_once_with(
+        short_code=short_link.short_code
+    )
+    cache_async_client_mock.set.assert_awaited_once()
+    short_link_repository_mock.save.assert_not_called()
+    _assert_cache_warning(
+        caplog=caplog,
+        message="Short link cache write failed.",
+        event="short_link_cache_write_failed",
+        short_code=short_link.short_code,
+        error=cache_error,
+    )
+
+
+@pytest.mark.anyio
+async def test_redis_cached_repository_preserves_fallback_error(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Preserve a repository failure after a logged cache read failure."""
+    short_code: ShortCode = ShortCode(value="aB12")
+    (
+        short_link_repository,
+        short_link_repository_mock,
+        cache_async_client_mock,
+    ) = _create_cached_repository()
+    cache_error: RedisError = RedisConnectionError("Cache read failed.")
+    cache_async_client_mock.get.side_effect = cache_error
+    read_error: RuntimeError = RuntimeError("Underlying read failed.")
+    short_link_repository_mock.get_by_short_code.side_effect = read_error
+
+    with caplog.at_level(level=WARNING, logger=LOGGER_NAME):
+        with pytest.raises(
+            expected_exception=RuntimeError,
+        ) as exception_info:
+            await short_link_repository.get_by_short_code(
+                short_code=short_code
+            )
+
+    assert exception_info.value is read_error
+    cache_async_client_mock.get.assert_awaited_once_with(
+        name="short_link:aB12"
+    )
+    short_link_repository_mock.get_by_short_code.assert_awaited_once_with(
+        short_code=short_code
+    )
+    cache_async_client_mock.set.assert_not_called()
+    _assert_cache_warning(
+        caplog=caplog,
+        message="Short link cache read failed.",
+        event="short_link_cache_read_failed",
+        short_code=short_code,
+        error=cache_error,
+    )
 
 
 @pytest.mark.anyio
