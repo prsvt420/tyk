@@ -18,11 +18,13 @@ class RedisCachedShortLinkRepository(ShortLinkRepositoryInterface):
         self,
         short_link_repository: ShortLinkRepositoryInterface,
         cache_async_client: AsyncRedis,
+        cache_short_link_ttl_seconds: int,
     ) -> None:
         self._short_link_repository: ShortLinkRepositoryInterface = (
             short_link_repository
         )
         self._cache_async_client: AsyncRedis = cache_async_client
+        self._cache_short_link_ttl_seconds: int = cache_short_link_ttl_seconds
 
     async def save(self, short_link: ShortLink) -> None:
         """Save short link."""
@@ -69,7 +71,7 @@ class RedisCachedShortLinkRepository(ShortLinkRepositoryInterface):
                     value=ShortLinkCacheMapper().to_cache(
                         short_link=short_link
                     ),
-                    ex=86400,
+                    ex=self._cache_short_link_ttl_seconds,
                 )
             except RedisError:
                 logger.warning(

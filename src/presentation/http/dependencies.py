@@ -13,6 +13,7 @@ from src.application.use_cases import (
     CreateShortLinkUseCase,
     GetShortLinkByShortCodeUseCase,
 )
+from src.config import app_settings
 from src.infrastructure.cache import cache_async_client as _cache_async_client
 from src.infrastructure.database import (
     check_database_readiness,
@@ -59,6 +60,7 @@ def provide_short_link_repository(
             database_async_session=database_async_session,
         ),
         cache_async_client=cache_async_client,
+        cache_short_link_ttl_seconds=app_settings.cache_short_link_ttl_seconds,
     )
 
 

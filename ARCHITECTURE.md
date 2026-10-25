@@ -173,8 +173,10 @@ caches the returned entity. An absent link returns `None` without a cache
 entry. Saving delegates to the persistent repository; cache entries are
 populated during reads.
 
-Each cache entry contains the complete entity as JSON and has a fixed
-time to live (TTL) of 86,400 seconds, or 24 hours, from its cache write.
+Each cache entry contains the complete entity as JSON. Its time to live
+(TTL) is configured through `CACHE_SHORT_LINK_TTL_SECONDS`, with a default
+of 86,400 seconds, or 24 hours, from its cache write. The provider passes
+this value to the caching repository through its constructor.
 Cache hits do not renew the TTL. This duration is independent of
 `expires_at`: the use case checks link expiration after either lookup
 path. Expiration of a cache key does not delete the stored database record.

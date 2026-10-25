@@ -125,8 +125,10 @@ async def test_provide_app_readiness_returns_database_status(
     check_database_readiness_mock.assert_awaited_once_with()
 
 
-def test_provide_short_link_repository_wraps_postgresql() -> None:
-    """Wrap PostgreSQL with the provided session and cache client."""
+def test_provide_short_link_repository_wraps_postgresql(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Wrap PostgreSQL with the session, cache client and configured TTL."""
     database_async_session: AsyncSession = cast(
         AsyncSession,
         MagicMock(spec=AsyncSession),
@@ -134,6 +136,11 @@ def test_provide_short_link_repository_wraps_postgresql() -> None:
     cache_async_client: AsyncRedis = cast(
         AsyncRedis,
         MagicMock(spec=AsyncRedis),
+    )
+    monkeypatch.setattr(
+        target=DEPENDENCIES_MODULE.app_settings,
+        name="cache_short_link_ttl_seconds",
+        value=120,
     )
 
     short_link_repository: ShortLinkRepositoryInterface = (
@@ -148,6 +155,7 @@ def test_provide_short_link_repository_wraps_postgresql() -> None:
         RedisCachedShortLinkRepository,
     )
     assert short_link_repository._cache_async_client is cache_async_client
+    assert short_link_repository._cache_short_link_ttl_seconds == 120
     database_short_link_repository: ShortLinkRepositoryInterface = (
         short_link_repository._short_link_repository
     )

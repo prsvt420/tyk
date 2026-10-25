@@ -50,6 +50,7 @@ def _create_cached_repository(
     *,
     short_link: ShortLink | None = None,
     short_link_cache: str | None = None,
+    cache_short_link_ttl_seconds: int = 86400,
 ) -> tuple[RedisCachedShortLinkRepository, MagicMock, MagicMock]:
     """Create a cached repository with isolated asynchronous dependencies."""
     short_link_repository_mock: MagicMock = MagicMock(
@@ -68,6 +69,7 @@ def _create_cached_repository(
                 ShortLinkRepositoryInterface, short_link_repository_mock
             ),
             cache_async_client=cast(AsyncRedis, cache_async_client_mock),
+            cache_short_link_ttl_seconds=cache_short_link_ttl_seconds,
         )
     )
 
@@ -271,14 +273,22 @@ async def test_redis_cached_repository_returns_cached_short_link() -> None:
 
 
 @pytest.mark.anyio
-async def test_redis_cached_repository_populates_cache_after_miss() -> None:
-    """Cache a link loaded from the underlying repository for one day."""
+@pytest.mark.parametrize(
+    argnames="cache_short_link_ttl_seconds", argvalues=[60, 86400]
+)
+async def test_redis_cached_repository_populates_cache_after_miss(
+    cache_short_link_ttl_seconds: int,
+) -> None:
+    """Cache a loaded link for the configured lifetime."""
     short_link: ShortLink = ShortLinkFactory.create()
     (
         short_link_repository,
         short_link_repository_mock,
         cache_async_client_mock,
-    ) = _create_cached_repository(short_link=short_link)
+    ) = _create_cached_repository(
+        short_link=short_link,
+        cache_short_link_ttl_seconds=cache_short_link_ttl_seconds,
+    )
 
     stored_short_link: ShortLink | None = (
         await short_link_repository.get_by_short_code(
@@ -299,7 +309,7 @@ async def test_redis_cached_repository_populates_cache_after_miss() -> None:
     )
     assert set(cache_arguments) == {"name", "value", "ex"}
     assert cache_arguments["name"] == "short_link:abcd"
-    assert cache_arguments["ex"] == 86400
+    assert cache_arguments["ex"] == cache_short_link_ttl_seconds
     short_link_cache: object = cache_arguments["value"]
     assert isinstance(short_link_cache, str)
     assert json.loads(s=short_link_cache) == {

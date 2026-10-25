@@ -21,6 +21,16 @@ def test_cache_async_client_uses_configured_url_and_enables_decoding(
             value="redis://cache.example:6380/2",
         )
         context.setattr(
+            target=app_settings,
+            name="cache_connect_timeout_seconds",
+            value=0.35,
+        )
+        context.setattr(
+            target=app_settings,
+            name="cache_socket_timeout_seconds",
+            value=0.15,
+        )
+        context.setattr(
             target=infrastructure_package,
             name="cache",
             value=None,
@@ -50,5 +60,17 @@ def test_cache_async_client_uses_configured_url_and_enables_decoding(
                 "decode_responses"
             ]
             is True
+        )
+        assert (
+            cache_async_client.connection_pool.connection_kwargs[
+                "socket_connect_timeout"
+            ]
+            == 0.35
+        )
+        assert (
+            cache_async_client.connection_pool.connection_kwargs[
+                "socket_timeout"
+            ]
+            == 0.15
         )
         assert cache_package.cache_async_client is cache_async_client
