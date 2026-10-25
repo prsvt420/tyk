@@ -99,9 +99,11 @@ Valid application settings are still required. Run all unit and integration
 tests before submitting changes.
 
 The [GitHub Actions](https://docs.github.com/en/actions) workflow in
-`.github/workflows/ci.yaml` installs locked dependencies, applies migrations,
-runs `alembic check` and runs `pre-commit run --all-files` for pull requests
-and pushes to `main`.
+`.github/workflows/ci.yaml` starts
+[PostgreSQL](https://www.postgresql.org/docs/18/) and
+[Redis](https://redis.io/docs/latest/) services, installs locked dependencies,
+applies migrations, runs `alembic check` and runs
+`pre-commit run --all-files` for pull requests and pushes to `main`.
 
 The `commit-msg` check runs separately when creating a commit; the command
 above and the CI workflow do not validate commit messages.
