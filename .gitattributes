@@ -1,0 +1,2 @@
+# Exclude generated load test reports from language statistics
+tests/load/results/** linguist-generated=true
