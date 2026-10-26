@@ -2,13 +2,13 @@
 
 ## Supported Versions
 
-Security updates are provided for the latest `0.1.x` version and the current
+Security updates are provided for the latest `0.2.x` version and the current
 state of the default branch. Older versions and revisions are not supported.
 
 | Version | Supported  |
-| ------- |------------|
-| 0.1.x   | ✔          |
-| < 0.1.0 | ✖          |
+|---------|------------|
+| 0.2.x   | ✔          |
+| < 0.2.0 | ✖          |
 
 ## Reporting a Vulnerability
 

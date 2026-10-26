@@ -2,7 +2,7 @@ name: tyk
 
 services:
   app:
-    image: tyk:0.1.0
+    image: tyk:0.2.0
     build:
       context: .
       dockerfile: Dockerfile
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
 
   migrate:
-    image: tyk:0.1.0
+    image: tyk:0.2.0
     command: ["alembic", "upgrade", "head"]
     env_file:
       - ".env"

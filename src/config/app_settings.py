@@ -9,7 +9,7 @@ class AppSettings(BaseSettings):
 
     app_debug: bool = False
     app_title: str = "Тык"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = (
         "INFO"
     )

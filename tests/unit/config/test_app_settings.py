@@ -31,7 +31,7 @@ def test_app_settings_uses_defaults() -> None:
 
     assert app_settings.app_debug is False
     assert app_settings.app_title == "Тык"
-    assert app_settings.app_version == "0.1.0"
+    assert app_settings.app_version == "0.2.0"
     assert app_settings.log_level == "INFO"
     assert app_settings.app_description == "Сокращатель URL-адресов"
     assert app_settings.public_base_url == HttpUrl("http://127.0.0.1:8000")

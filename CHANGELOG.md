@@ -1,3 +1,41 @@
+## [0.2.0] - 2026-10-26
+
+### 🚀 Features
+
+- *(cache)* Add Redis cache foundation
+- *(links)* Add short link cache mapper
+- *(links)* Add Redis cached short link repository
+- *(config)* Add cache timeout and TTL settings
+
+### 🐛 Bug Fixes
+
+- *(links)* Handle short link cache failures
+- *(project)* Allow startup without Redis
+
+### 💼 Other
+
+- *(project)* Add Redis to Docker Compose
+
+### 🚜 Refactor
+
+- *(database)* Clarify database resource names
+- *(links)* Use Redis cached short link repository
+
+### 📚 Documentation
+
+- *(changelog)* Add initial changelog
+- *(benchmarks)* Add v0.1.0 benchmark results
+
+### 🧪 Testing
+
+- *(links)* Add basic load testing scenarios
+- *(links)* Add Redis cache integration tests
+
+### ⚙️ Miscellaneous Tasks
+
+- *(project)* Add Redis service
+- *(git)* Mark load test reports as generated
+
 ## [0.1.0] - 2026-10-23
 
 ### 🚀 Features
