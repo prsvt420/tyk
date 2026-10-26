@@ -65,7 +65,7 @@ starting point and adjust the values for your environment.
 | `APP_DESCRIPTION`               | Application description shown in the API documentation.                                                                                                                                                                                                             |
 | `LOG_LEVEL`                     | Minimum log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL`.                                                                                                                                                                                              |
 | `PUBLIC_BASE_URL`               | Public base URL for generated short links, e.g. `https://tyk.example`; the app appends `/r/{short_code}`.                                                                                                                                                           |
-| `CACHE_URL`                     | [Redis](https://redis.io/docs/latest/) connection URL for short link caching, e.g. `redis://localhost:6379/0`. The server must be reachable from the application.                                                                                                   |
+| `CACHE_URL`                     | Required [Redis](https://redis.io/docs/latest/) connection URL for short link caching, e.g. `redis://localhost:6379/0`.                                                                                                                                             |
 | `CACHE_SHORT_LINK_TTL_SECONDS`  | Time to live for cached short links, in seconds. Default: `86400` (24 hours); must be greater than `0`.                                                                                                                                                             |
 | `CACHE_CONNECT_TIMEOUT_SECONDS` | Cache connection timeout in seconds. Default: `0.5`; must be greater than `0`.                                                                                                                                                                                      |
 | `CACHE_SOCKET_TIMEOUT_SECONDS`  | Timeout for cache socket reads and writes, in seconds. Default: `0.2`; must be greater than `0`.                                                                                                                                                                    |
@@ -100,6 +100,10 @@ Prerequisites: [Docker](https://docs.docker.com/) and
    ```bash
    docker compose up --build
    ```
+
+The application waits for migrations to finish before starting.
+[Redis](https://redis.io/docs/latest/) readiness does not block application
+startup.
 
 The API will be available at `http://127.0.0.1:8000`. See the interactive
 [API documentation](http://127.0.0.1:8000/docs) for available endpoints.
@@ -169,8 +173,10 @@ Prerequisites: [Git](https://git-scm.com/),
 [Python 3.13+](https://docs.python.org/3.13/),
 [uv](https://docs.astral.sh/uv/), a running
 [PostgreSQL](https://www.postgresql.org/docs/18/) instance with an existing
-database and user, and a running [Redis](https://redis.io/docs/latest/)
-instance. Both services must be accessible from your host.
+database and user accessible from your host. For caching, use a
+[Redis](https://redis.io/docs/latest/) instance accessible from your host.
+The application can run while Redis is unavailable; `CACHE_URL` is still
+required.
 
 The current [Compose](https://docs.docker.com/compose/) configuration does not publish the [PostgreSQL](https://www.postgresql.org/docs/18/) port to the
 host. For this workflow, use a [PostgreSQL](https://www.postgresql.org/docs/18/) instance accessible from your host.

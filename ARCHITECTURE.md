@@ -189,6 +189,12 @@ Warnings include the short code, a read or write failure event and the
 exception traceback. Errors from the persistent repository and errors while
 rebuilding cached entities propagate through the existing exception handling.
 
+An unavailable cache does not block application startup or disable link
+creation and redirects. Subsequent link lookups try Redis again, so caching
+can resume after recovery without restarting the application. Cache
+availability does not determine readiness; the probe checks required
+resources independently.
+
 ### Data Representations
 
 `ShortLink` is the domain entity and enforces business rules through its
