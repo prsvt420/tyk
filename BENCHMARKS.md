@@ -1,7 +1,8 @@
 # Benchmarks
 
 Local load measurements for the short link creation and redirect endpoints.
-The application, PostgreSQL and Locust run on the same computer.
+The application, PostgreSQL and Locust run on the same computer, together
+with Redis when caching is enabled.
 
 ## Methodology
 
@@ -16,7 +17,7 @@ The application, PostgreSQL and Locust run on the same computer.
 - Spawn rate equals the user count. There is no artificial task wait
   and the HTTP client read timeout is five seconds.
 - Run time includes ramp-up and setup requests. No warm-up interval is
-  excluded, and caches are not reset between runs.
+  excluded. Cache settings and resets are recorded for each version.
 
 RPS is the arithmetic mean of three final HTML `total_rps` values.
 The RPS range shows the lowest and highest repeat. Latency columns show
@@ -29,6 +30,10 @@ traffic, including setup. Equal user counts in mixed traffic do not
 guarantee an equal POST/GET request ratio. RPS includes failed requests;
 failures are reported alongside throughput.
 
+Each redirect user creates its own short link during setup and repeatedly
+requests that link without following the redirect. With Redis enabled,
+this workload reuses a small set of keys that warms within each run.
+
 ## Running Measurements
 
 Run Locust from the repository root against the running application.
@@ -38,7 +43,7 @@ Replace every placeholder in this command template before running it:
 uv run locust -f tests/load/locustfile.py --host http://127.0.0.1:8000 --headless -u <users> -r <users> -t 60s --html tests/load/results/<version>/<scenario>/<run>/locust_report.html --csv tests/load/results/<version>/<scenario>/<run>/locust <user-classes>
 ```
 
-Use the application version for `<version>` (for example, `v0.1.0`)
+Use the application version for `<version>` (for example, `v0.2.0`)
 and a different `<run>` directory for every repeat (for example,
 `run-01`). Select the scenario and user classes below:
 
@@ -64,6 +69,9 @@ Each run contains five files:
 - `locust_failures.csv`
 - `locust_exceptions.csv`
 
+CSV files contain periodic snapshots and can differ slightly from the
+final HTML report. All summaries below use the final HTML statistics.
+
 ## v0.1.0
 
 Collected on 2026-10-24 using an AMD Ryzen 7 7700 8-Core Processor,
@@ -71,6 +79,9 @@ Collected on 2026-10-24 using an AMD Ryzen 7 7700 8-Core Processor,
 Python 3.13.11, Locust 2.47.0 and Uvicorn 0.48.0 were installed.
 FastAPI 0.136.3, SQLAlchemy 2.0.51 and asyncpg 0.31.0 were also installed.
 The database server was PostgreSQL 18.
+
+Redis caching was not used in this version. Short link lookups went
+directly to PostgreSQL.
 
 | Scenario | Users | Mean RPS |     RPS range | p50 (ms) | p95 (ms) | p99 (ms) | Failed / requests |
 |----------|------:|---------:|--------------:|---------:|---------:|---------:|------------------:|
@@ -96,6 +107,99 @@ The failing run is included in the summary.
 At 100 users, mean throughput was lower than at 50 users in every
 scenario, while p95 and p99 increased. Increasing concurrency therefore
 did not improve throughput at that tested level in this configuration.
+
+## v0.2.0
+
+Collected on 2026-10-27 on the same computer and operating system as
+`v0.1.0`. The application ran locally with one worker, no reload and
+`LOG_LEVEL=INFO`, using ordinary terminal output.
+Python 3.13.11, Locust 2.47.0, Uvicorn 0.48.0, FastAPI 0.136.3,
+SQLAlchemy 2.0.51 and asyncpg 0.31.0 were installed.
+The database server was PostgreSQL 18. Redis caching used
+redis-py 8.1.0 and hiredis 3.5.0.
+
+Before every run, the short links table was truncated and the transaction
+committed, and Redis keys matching `short_link:*` were deleted.
+The cache warmed during the measured run. Cache settings were:
+
+| Setting                         | Value |
+|---------------------------------|------:|
+| `CACHE_SHORT_LINK_TTL_SECONDS`  | 86400 |
+| `CACHE_CONNECT_TIMEOUT_SECONDS` |   0.5 |
+| `CACHE_SOCKET_TIMEOUT_SECONDS`  |   0.2 |
+
+| Scenario | Users | Mean RPS |       RPS range | p50 (ms) | p95 (ms) | p99 (ms) | Failed / requests |
+|----------|------:|---------:|----------------:|---------:|---------:|---------:|------------------:|
+| create   |     1 |   541.94 |   530.21–554.66 |        2 |        2 |      2–3 |        0 / 96,915 |
+| create   |    10 |   650.85 |   643.92–654.76 |    13–14 |    23–25 |    51–53 |       0 / 116,600 |
+| create   |    50 |   761.76 |   751.62–767.98 |       58 |   96–110 |  150–180 |       1 / 136,463 |
+| create   |   100 |   753.40 |   749.29–760.52 |    59–60 |  480–490 | 750–1200 |     118 / 134,989 |
+| redirect |     1 |   824.42 |   821.83–826.76 |        1 |        1 |        2 |       0 / 147,622 |
+| redirect |    10 |  1391.01 | 1388.94–1394.33 |        7 |        8 |     9–10 |       0 / 249,189 |
+| redirect |    50 |  1561.84 | 1556.64–1569.50 |       31 |    35–36 |       40 |       0 / 279,808 |
+| redirect |   100 |  1495.49 | 1490.15–1499.55 |       65 |    76–77 |    93–99 |       0 / 267,976 |
+| mixed    |     2 |   891.30 |   883.30–899.94 |        2 |        3 |      3–4 |       0 / 159,694 |
+| mixed    |    10 |  1004.37 | 1003.62–1005.45 |        9 |       14 |    15–16 |       0 / 179,922 |
+| mixed    |    50 |  1047.31 | 1043.10–1050.28 |       39 |    68–69 |    77–80 |       0 / 187,642 |
+| mixed    |   100 |  1045.72 | 1044.27–1046.93 |       77 |  140–150 |  170–180 |       0 / 187,369 |
+
+The 36 runs contain 2,144,672 requests, including 726 setup POSTs.
+All setup requests succeeded. There were 119 failed requests, all in
+the creation scenario:
+
+| Run             | Users | Failed / requests |
+|-----------------|------:|------------------:|
+| `create/run-08` |    50 |        1 / 45,732 |
+| `create/run-10` |   100 |       45 / 45,422 |
+| `create/run-11` |   100 |        5 / 44,817 |
+| `create/run-12` |   100 |       68 / 44,750 |
+
+The other 32 runs had zero failures. All runs are included in the
+summary. No Locust exceptions were recorded.
+
+At 100 users, mean throughput was lower than at 50 users in every
+scenario. Redirect throughput peaked at 1561.84 RPS with 50 users;
+increasing concurrency to 100 users raised redirect p95 from 35–36 ms
+to 76–77 ms.
+
+## v0.1.0 to v0.2.0
+
+The table compares the mean RPS of three repeats at each user level.
+Percentage changes are calculated from the unrounded means.
+
+| Scenario | Users | v0.1.0 RPS | v0.2.0 RPS |  Change |
+|----------|------:|-----------:|-----------:|--------:|
+| create   |     1 |     562.19 |     541.94 |  −3.60% |
+| create   |    10 |     674.57 |     650.85 |  −3.52% |
+| create   |    50 |     785.74 |     761.76 |  −3.05% |
+| create   |   100 |     762.97 |     753.40 |  −1.26% |
+| redirect |     1 |     763.57 |     824.42 |  +7.97% |
+| redirect |    10 |     885.38 |    1391.01 | +57.11% |
+| redirect |    50 |     980.74 |    1561.84 | +59.25% |
+| redirect |   100 |     959.06 |    1495.49 | +55.93% |
+| mixed    |     2 |     764.06 |     891.30 | +16.65% |
+| mixed    |    10 |     686.15 |    1004.37 | +46.38% |
+| mixed    |    50 |     754.36 |    1047.31 | +38.84% |
+| mixed    |   100 |     711.33 |    1045.72 | +47.01% |
+
+Redirect throughput increased at every tested user level. At 100 users,
+p95 decreased from 480–720 ms to 76–77 ms and p99 from 770–1000 ms to
+93–99 ms, while p50 increased from 28–29 ms to 65 ms.
+
+Creation throughput decreased by 1.26–3.60% across the tested levels.
+Creation failures were recorded in both versions: 365 in `v0.1.0` and
+119 in `v0.2.0`.
+
+Mixed throughput increased by 16.65–47.01%. Its request composition also
+changed: at 100 users, GET requests accounted for 30.68% of measured
+POST/GET traffic in `v0.1.0` and 64.10% in `v0.2.0`, excluding setup
+requests. Interpret this aggregate result together with the separate
+creation and redirect scenarios.
+
+These figures compare local release configurations. Redis was enabled
+in `v0.2.0`; its cache was reset before each run and warmed during the
+measurement. The series does not isolate Redis from other release
+changes or establish production capacity.
 
 ## Comparing Future Versions
 

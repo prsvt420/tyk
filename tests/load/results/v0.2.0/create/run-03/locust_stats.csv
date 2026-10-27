@@ -1,0 +1,3 @@
+Type,Name,Request Count,Failure Count,Median Response Time,Average Response Time,Min Response Time,Max Response Time,Average Content Size,Requests/s,Failures/s,50%,66%,75%,80%,90%,95%,98%,99%,99.9%,99.99%,100%
+POST,/api/v1/short-links,31953,0,2,1.811393565460606,1.5449000056833029,26.706299977377057,216.0,541.4223163728544,0.0,2,2,2,2,2,2,2,3,9,16,27
+,Aggregated,31953,0,2,1.811393565460606,1.5449000056833029,26.706299977377057,216.0,541.4223163728544,0.0,2,2,2,2,2,2,2,3,9,16,27
