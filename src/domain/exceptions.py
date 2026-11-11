@@ -3,12 +3,20 @@ class DomainError(Exception):
 
 
 class InvalidOriginalURLError(DomainError):
-    """Raised when original URL is invalid."""
+    """Raised when original URL value object is invalid."""
 
 
 class InvalidShortCodeError(DomainError):
-    """Raised when short code is invalid."""
+    """Raised when short code value object is invalid."""
 
 
 class InvalidShortLinkError(DomainError):
     """Raised when short link entity is invalid."""
+
+
+class InvalidEmailError(DomainError):
+    """Raised when email value object is invalid."""
+
+
+class InvalidUserError(DomainError):
+    """Raised when user entity is invalid."""
