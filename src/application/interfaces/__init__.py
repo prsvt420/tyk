@@ -1,3 +1,6 @@
+from src.application.interfaces.password_hasher_interface import (
+    PasswordHasherInterface,
+)
 from src.application.interfaces.short_code_generator_interface import (
     ShortCodeGeneratorInterface,
 )
@@ -12,4 +15,5 @@ __all__: list[str] = [
     "ShortCodeGeneratorInterface",
     "ShortLinkRepositoryInterface",
     "UserRepositoryInterface",
+    "PasswordHasherInterface",
 ]
