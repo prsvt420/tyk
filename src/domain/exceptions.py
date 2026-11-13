@@ -18,5 +18,9 @@ class InvalidEmailError(DomainError):
     """Raised when email value object is invalid."""
 
 
+class InvalidPasswordError(DomainError):
+    """Raised when password value object is invalid."""
+
+
 class InvalidUserError(DomainError):
     """Raised when user entity is invalid."""
