@@ -1,6 +1,7 @@
 from src.application.use_cases.create_short_link_use_case import (
     CreateShortLinkUseCase,
 )
+from src.application.use_cases.create_user_use_case import CreateUserUseCase
 from src.application.use_cases.get_short_link_by_short_code_use_case import (
     GetShortLinkByShortCodeUseCase,
 )
@@ -8,4 +9,5 @@ from src.application.use_cases.get_short_link_by_short_code_use_case import (
 __all__: list[str] = [
     "CreateShortLinkUseCase",
     "GetShortLinkByShortCodeUseCase",
+    "CreateUserUseCase",
 ]
