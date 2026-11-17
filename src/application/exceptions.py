@@ -16,3 +16,7 @@ class ShortLinkExpiredError(ApplicationError):
 
 class ShortCodeAlreadyExistsError(ApplicationError):
     """Raised when short code already exists."""
+
+
+class EmailAlreadyExistsError(ApplicationError):
+    """Raised when email already exists."""
