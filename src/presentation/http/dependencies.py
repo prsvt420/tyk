@@ -19,11 +19,11 @@ from src.infrastructure.database import (
     check_database_readiness,
     database_async_session_factory,
 )
-from src.infrastructure.generators import RandomShortCodeGenerator
 from src.infrastructure.repositories import (
     PostgreSQLShortLinkRepository,
     RedisCachedShortLinkRepository,
 )
+from src.infrastructure.short_code_generators import RandomShortCodeGenerator
 
 _short_code_generator: ShortCodeGeneratorInterface = RandomShortCodeGenerator()
 

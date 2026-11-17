@@ -16,11 +16,11 @@ from src.application.use_cases import (
     CreateShortLinkUseCase,
     GetShortLinkByShortCodeUseCase,
 )
-from src.infrastructure.generators import RandomShortCodeGenerator
 from src.infrastructure.repositories import (
     PostgreSQLShortLinkRepository,
     RedisCachedShortLinkRepository,
 )
+from src.infrastructure.short_code_generators import RandomShortCodeGenerator
 from src.presentation.http.dependencies import (
     provide_app_readiness,
     provide_cache_async_client,

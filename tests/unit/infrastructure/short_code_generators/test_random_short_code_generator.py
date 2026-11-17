@@ -7,8 +7,8 @@ from src.domain.constants import (
 )
 from src.domain.value_objects import ShortCode
 from src.infrastructure.exceptions import ShortCodeGeneratorError
-from src.infrastructure.generators import RandomShortCodeGenerator
-from src.infrastructure.generators.random_short_code_generator import (
+from src.infrastructure.short_code_generators import RandomShortCodeGenerator
+from src.infrastructure.short_code_generators.random_short_code_generator import (  # noqa: E501
     DEFAULT_SHORT_CODE_LENGTH,
 )
 
