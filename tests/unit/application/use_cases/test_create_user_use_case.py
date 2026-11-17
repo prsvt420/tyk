@@ -13,6 +13,7 @@ from src.application.interfaces import (
 from src.application.use_cases import CreateUserUseCase
 from src.domain.entities import User
 from src.domain.exceptions import InvalidEmailError, InvalidPasswordError
+from src.domain.value_objects import Password
 
 LOGGER_NAME: str = "src.application.use_cases.create_user_use_case"
 RAW_VALUE: str = "Example123!"
@@ -55,7 +56,7 @@ async def test_create_user_persists_hashed_credentials(
 
     assert isinstance(hasher.hash, AsyncMock)
     assert isinstance(repository.save, AsyncMock)
-    hasher.hash.assert_awaited_once_with(password=RAW_VALUE)
+    hasher.hash.assert_awaited_once_with(password=Password(value=RAW_VALUE))
     repository.save.assert_awaited_once()
     saved: User = repository.save.call_args.kwargs["user"]
     assert isinstance(saved.id, UUID)
@@ -135,7 +136,7 @@ async def test_create_user_propagates_dependency_failure(
             )
 
     assert caught.value is error
-    hasher.hash.assert_awaited_once_with(password=RAW_VALUE)
+    hasher.hash.assert_awaited_once_with(password=Password(value=RAW_VALUE))
     if failure_source == "hash":
         repository.save.assert_not_awaited()
     else:

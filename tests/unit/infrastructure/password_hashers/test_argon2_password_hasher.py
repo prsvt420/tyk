@@ -8,6 +8,7 @@ from pwdlib.exceptions import (
     UnknownHashError,
 )
 
+from src.domain.value_objects import Password
 from src.infrastructure.password_hashers import Argon2PasswordHasher
 
 RAW_VALUE: str = "Example123!"
@@ -23,7 +24,7 @@ async def test_hasher_round_trips_password(value: str) -> None:
     """Create an Argon2id hash that can be verified by another instance."""
     hasher: Argon2PasswordHasher = Argon2PasswordHasher()
 
-    hashed_value: str = await hasher.hash(password=value)
+    hashed_value: str = await hasher.hash(password=Password(value=value))
 
     assert hashed_value.startswith("$argon2id$")
     assert hashed_value != value
@@ -37,8 +38,8 @@ async def test_hasher_uses_random_salts() -> None:
     """Produce different valid hashes for the same input."""
     hasher: Argon2PasswordHasher = Argon2PasswordHasher()
 
-    first: str = await hasher.hash(password=RAW_VALUE)
-    second: str = await hasher.hash(password=RAW_VALUE)
+    first: str = await hasher.hash(password=Password(value=RAW_VALUE))
+    second: str = await hasher.hash(password=Password(value=RAW_VALUE))
 
     assert first != second
     assert await hasher.verify(password=RAW_VALUE, hashed_password=first)
@@ -49,7 +50,7 @@ async def test_hasher_uses_random_salts() -> None:
 async def test_hasher_rejects_different_password() -> None:
     """Return false for a mismatch without modifying or trimming input."""
     hasher: Argon2PasswordHasher = Argon2PasswordHasher()
-    hashed_value: str = await hasher.hash(password=RAW_VALUE)
+    hashed_value: str = await hasher.hash(password=Password(value=RAW_VALUE))
 
     assert not await hasher.verify(
         password=RAW_VALUE.lower(), hashed_password=hashed_value
@@ -87,7 +88,7 @@ async def test_hasher_propagates_backend_errors(operation: str) -> None:
     ):
         with pytest.raises(expected_exception=type(error)) as caught:
             if operation == "hash":
-                await hasher.hash(password=RAW_VALUE)
+                await hasher.hash(password=Password(value=RAW_VALUE))
             else:
                 await hasher.verify(
                     password=RAW_VALUE, hashed_password=STORED_VALUE

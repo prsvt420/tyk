@@ -28,7 +28,7 @@ class CreateUserUseCase:
         """Create user."""
         email: Email = Email(value=create_user_dto.email)
         password: str = await self._password_hasher.hash(
-            password=Password(value=create_user_dto.password).value
+            password=Password(value=create_user_dto.password)
         )
 
         user: User = User(

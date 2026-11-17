@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 
+from src.domain.value_objects import Password
+
 
 class PasswordHasherInterface(ABC):
     """Password hasher interface."""
 
     @abstractmethod
-    async def hash(self, password: str) -> str:
+    async def hash(self, password: Password) -> str:
         """Hash password."""
         ...
 
